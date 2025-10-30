@@ -8,42 +8,346 @@
     <style>
         :root {
             --gold: #d4af37;
+            --gold-light: #f4e4b8;
+            --gold-dark: #b8941f;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.4); }
+        }
+
+        .gold-gradient {
+            background: linear-gradient(135deg, #d4af37 0%, #f4e4b8 50%, #d4af37 100%);
+            background-size: 200% 200%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .slide-down {
+            animation: slideDown 0.4s ease-out;
+        }
+
+        /* Premium Navbar Styles */
+        .nav-container {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.85));
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 30px rgba(212, 175, 55, 0.1);
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(90deg, transparent, var(--gold), transparent) 1;
+        }
+
+        .logo-container {
+            position: relative;
+            display: inline-block;
+            padding: 8px 20px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+            border-radius: 12px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .logo-text {
+            background: linear-gradient(135deg, #d4af37, #f4e4b8, #d4af37, #f4e4b8);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 4s ease-in-out infinite;
+            font-weight: 800;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .logo-icon {
+            display: inline-block;
+            margin-right: 8px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .nav-link-premium {
+            position: relative;
+            padding: 10px 20px;
+            background: rgba(212, 175, 55, 0.03);
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-link-premium::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            padding: 1px;
+            background: linear-gradient(135deg, transparent, var(--gold), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.4s;
+        }
+
+        .nav-link-premium:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .nav-link-premium:hover::before {
+            opacity: 1;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            padding: 8px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .mobile-menu-btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .mobile-nav {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .desktop-nav {
+                display: none !important;
+            }
+
+            .mobile-nav {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: linear-gradient(to bottom, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0.95));
+                backdrop-filter: blur(20px);
+                border-bottom: 2px solid var(--gold);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                animation: slideDown 0.3s ease-out;
+            }
+
+            .mobile-nav.active {
+                display: block;
+            }
+
+            .mobile-nav a {
+                display: block;
+                padding: 16px 24px;
+                border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+                transition: all 0.3s;
+            }
+
+            .mobile-nav a:hover {
+                background: rgba(212, 175, 55, 0.1);
+                padding-left: 32px;
+            }
+        }
+
+        .glass-effect {
+            background: rgba(212, 175, 55, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .message-notification {
+            animation: slideDown 0.5s ease-out, fadeIn 0.5s ease-out;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .luxury-border {
+            position: relative;
+        }
+
+        .luxury-border::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.5;
+        }
+
+        .hover-glow {
+            transition: all 0.3s ease;
+        }
+
+        .hover-glow:hover {
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+        }
+
+        body {
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
         }
     </style>
 </head>
-<body class="bg-black text-white font-sans">
-    {% if messages %}
-  <div class="container mx-auto mt-4">
-    {% for message in messages %}
-      <div class="p-3 mb-2 text-white bg-green-600 rounded-lg">
-        {{ message }}
-      </div>
-    {% endfor %}
-  </div>
-{% endif %}
+<body class="bg-black text-white font-sans min-h-screen flex flex-col">
 
-    <!-- Navbar -->
-    <nav class="w-full py-4 px-8 flex justify-between items-center bg-black/90 border-b border-[var(--gold)] sticky top-0 z-50">
-    <a href="/" class="text-2xl font-bold text-[var(--gold)]">Scentpedia</a>
-    <div class="flex space-x-6 text-sm">
-        <a href="{% url 'perfume_list' %}" class="hover:text-[var(--gold)] transition">Browse</a>
-        
-        <a href="{% url 'compare_perfumes' %}" class="hover:text-[var(--gold)] transition">Compare</a>
-        
-        <a href="#" class="hover:text-[var(--gold)] transition">About</a>
-        <a href="#" class="hover:text-[var(--gold)] transition">Contact</a>
+    {% if messages %}
+    <div class="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md px-4">
+        {% for message in messages %}
+        <div class="message-notification glass-effect p-4 mb-3 text-white rounded-lg border border-[var(--gold)]">
+            <div class="flex items-center space-x-3">
+                <svg class="w-5 h-5 text-[var(--gold)]" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="flex-1">{{ message }}</span>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-</nav>
-    <!-- Content Block -->
-    <main class="p-6">
+    {% endif %}
+
+    <!-- Premium Navbar -->
+    <nav class="nav-container w-full py-4 px-6 md:px-12 sticky top-0 z-40 fade-in">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <!-- Logo -->
+            <a href="/" class="logo-container hover-glow">
+                <span class="logo-icon text-2xl">✦</span>
+                <span class="text-2xl md:text-3xl logo-text">Scentpedia</span>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav hidden md:flex space-x-4">
+                <a href="{% url 'perfume_list' %}" class="nav-link-premium text-gray-300 hover:text-white">
+                    <span class="mr-2">🔍</span>Browse
+                </a>
+                <a href="{% url 'compare_perfumes' %}" class="nav-link-premium text-gray-300 hover:text-white">
+                    <span class="mr-2">⚖️</span>Compare
+                </a>
+                <a href="#" class="nav-link-premium text-gray-300 hover:text-white">
+                    <span class="mr-2">ℹ️</span>About
+                </a>
+                <a href="#" class="nav-link-premium text-gray-300 hover:text-white">
+                    <span class="mr-2">✉️</span>Contact
+                </a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <svg class="w-6 h-6 text-[var(--gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div class="mobile-nav" id="mobileMenu">
+            <a href="{% url 'perfume_list' %}" class="text-gray-300 hover:text-white">
+                <span class="mr-2">🔍</span>Browse
+            </a>
+            <a href="{% url 'compare_perfumes' %}" class="text-gray-300 hover:text-white">
+                <span class="mr-2">⚖️</span>Compare
+            </a>
+            <a href="#" class="text-gray-300 hover:text-white">
+                <span class="mr-2">ℹ️</span>About
+            </a>
+            <a href="#" class="text-gray-300 hover:text-white">
+                <span class="mr-2">✉️</span>Contact
+            </a>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="flex-grow p-6 fade-in-up">
         {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
-    <footer class="mt-10 text-center py-6 border-t border-gray-700 text-gray-400 text-sm">
-        © {{ now|date:"Y" }} <span class="text-[var(--gold)] font-semibold">Scentpedia</span>. All rights reserved.
+    <footer class="luxury-border mt-auto text-center py-8 border-t border-gray-800 text-gray-400 text-sm">
+        <div class="space-y-2">
+            <p class="text-base">
+                © {{ now|date:"Y" }} <span class="text-[var(--gold)] font-bold tracking-wide">Scentpedia</span>
+            </p>
+            <p class="text-xs text-gray-500">Crafted with passion for perfume enthusiasts</p>
+            <div class="flex justify-center space-x-4 mt-4 text-xs">
+                <a href="#" class="hover:text-[var(--gold)] transition-colors">Privacy</a>
+                <span class="text-gray-600">•</span>
+                <a href="#" class="hover:text-[var(--gold)] transition-colors">Terms</a>
+                <span class="text-gray-600">•</span>
+                <a href="#" class="hover:text-[var(--gold)] transition-colors">Support</a>
+            </div>
+        </div>
     </footer>
+
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('mobileMenu');
+            const btn = document.querySelector('.mobile-menu-btn');
+            if (menu && !menu.contains(event.target) && !btn.contains(event.target)) {
+                menu.classList.remove('active');
+            }
+        });
+    </script>
 
 </body>
 </html>

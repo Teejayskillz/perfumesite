@@ -15,5 +15,20 @@
   </div>
 </a>
 {% empty %}
-<p class="text-gray-500 text-center py-8">No perfumes found for these filters.</p>
+<p class="text-gray-500 text-center py-8 col-span-full">No perfumes found for these filters.</p>
 {% endfor %}
+
+{% if perfumes.has_next %}
+  <div 
+    hx-get="?page={{ perfumes.next_page_number }}"
+    hx-trigger="revealed"
+    hx-swap="afterend"
+    hx-target="this"
+    class="flex justify-center py-8"
+  >
+    <div class="flex flex-col items-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-400 mb-2"></div>
+      <p class="text-gray-400 text-sm">Loading more perfumes...</p>
+    </div>
+  </div>
+{% endif %}

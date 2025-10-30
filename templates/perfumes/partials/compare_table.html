@@ -1,58 +1,436 @@
-{% if perfumes %}
-<div class="overflow-x-auto bg-gray-900 rounded-xl p-4 shadow-lg" id="compare-table">
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+
+  /* --- MOBILE RESPONSIVE FIXES START HERE --- */
+  .compare-table-container {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.03), rgba(0, 0, 0, 0.9));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    animation: fadeIn 0.6s ease-out;
+    position: relative; /* Essential for sticky element */
+    -webkit-overflow-scrolling: touch; /* Improved scroll physics on iOS */
+  }
+
+  /* Target the table within the container to ensure it maintains width */
+  .compare-table-container table {
+    min-width: fit-content; /* Ensure table honors the min-width of its children columns */
+  }
+
+  /* Makes the first column (Features) stick to the left when scrolling horizontally */
+  .feature-label {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(0, 0, 0, 0.5)); /* Solid background for overlay */
+    color: #d4af37;
+    font-weight: 700;
+    position: sticky;
+    left: 0;
+    z-index: 20; /* Higher Z-index to ensure it is always on top */
+    border-right: 1px solid rgba(212, 175, 55, 0.2); /* Visual separation */
+  }
+
+  /* Sticky Corner Radius Fixes - Removed classes from HTML and defined here for clean sticky behavior */
+  .table-header .feature-label {
+    border-top-left-radius: 0.75rem; /* rounded-tl-xl */
+  }
+
+  tbody tr:last-child .feature-label {
+    border-bottom-left-radius: 0.75rem; /* rounded-bl-xl */
+  }
+  /* --- MOBILE RESPONSIVE FIXES END HERE --- */
+
+
+  .perfume-column {
+    /* *** WIDER MOBILE COLUMN CHANGE APPLIED HERE (250px) *** */
+    min-width: 250px !important; 
+    /* ****************************************************** */
+    animation: slideInRight 0.5s ease-out;
+    animation-fill-mode: both;
+  }
+
+  .perfume-column:nth-child(2) { animation-delay: 0.1s; }
+  .perfume-column:nth-child(3) { animation-delay: 0.2s; }
+  .perfume-column:nth-child(4) { animation-delay: 0.3s; }
+  .perfume-column:nth-child(5) { animation-delay: 0.4s; }
+
+  .perfume-image-compare {
+    transition: all 0.3s ease;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+  }
+
+  .perfume-image-compare:hover {
+    transform: scale(1.1) rotate(3deg);
+    border-color: #d4af37;
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+  }
+
+  .remove-btn {
+    background: rgba(220, 38, 38, 0.9);
+    transition: all 0.2s ease;
+    opacity: 0;
+  }
+
+  .perfume-column:hover .remove-btn {
+    opacity: 1;
+  }
+
+  .remove-btn:hover {
+    background: rgba(220, 38, 38, 1);
+    transform: scale(1.2) rotate(90deg);
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
+  }
+
+  .table-header {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(0, 0, 0, 0.5));
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+  }
+
+  .table-row {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+  }
+
+  .table-row:hover {
+    background: rgba(212, 175, 55, 0.05);
+  }
+
+  .scroll-indicator {
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+    animation: float 2s ease-in-out infinite;
+  }
+
+  .rating-stars {
+    color: #d4af37;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+
+  .accord-badge {
+    background: rgba(212, 175, 55, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    color: #d4af37;
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    margin: 0.125rem;
+    transition: all 0.2s ease;
+  }
+
+  .accord-badge:hover {
+    background: rgba(212, 175, 55, 0.25);
+    border-color: #d4af37;
+    transform: translateY(-1px);
+  }
+
+  .empty-state {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  /* Custom scrollbar */
+  .compare-table-container::-webkit-scrollbar {
+    height: 10px;
+  }
+
+  .compare-table-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+  }
+
+  .compare-table-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #d4af37, #f4e4b8);
+    border-radius: 5px;
+  }
+
+  .compare-table-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #f4e4b8, #d4af37);
+  }
+
+  .notes-cell {
+    max-width: 250px;
+    line-height: 1.6;
+  }
   
-  <div class="hidden md:block absolute top-0 right-0 p-2 text-gray-500 text-sm">
-    Scroll left/right to view more items →
+  .seo-link-btn {
+      background: #d4af37;
+      color: #000;
+      font-weight: bold;
+      transition: all 0.3s ease;
+  }
+
+  .seo-link-btn:hover {
+      background: #f4e4b8;
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
+      transform: translateY(-2px);
+  }
+</style>
+
+<div style="display: none;">
+  <meta name="keywords" content="perfume comparison, best fragrance, {{ perfumes|join:', '|truncatewords:30 }}, notes comparison, accords, perfume rating">
+  <meta name="description" content="Detailed side-by-side comparison of {{ perfumes|length }} perfumes: {{ perfumes|join:', '|truncatewords:40 }}. Compare notes, accords, ratings, and more to find your perfect scent.">
+  <link rel="canonical" href="[YOUR_SITE_ROOT_URL]/compare/">
+</div>
+
+
+{% if perfumes %}
+<div class="compare-table-container overflow-x-auto rounded-2xl p-6 shadow-2xl relative" id="compare-table">
+  
+  <div class="scroll-indicator hidden md:flex absolute top-4 right-4 items-center gap-2 px-4 py-2 rounded-full text-xs text-[var(--gold)]">
+    <span>Scroll to view more</span>
+    <span class="text-lg">→</span>
   </div>
 
-  <div class="flex justify-end pr-2 text-yellow-400 text-sm font-medium mb-2 md:hidden">
-    &leftarrow; Swipe/Scroll to see more &rightarrow;
+  <div class="scroll-indicator flex flex-col justify-center items-center text-[var(--gold)] text-sm font-semibold mb-4 py-2 rounded-xl md:hidden">
+    <div class="flex items-center gap-2">
+        <span class="text-lg">←</span>
+        <span>**Swipe to see more**</span>
+        <span class="text-lg">→</span>
+    </div>
+    <span class="mt-1 text-xs font-normal text-gray-400">
+        (For best experience, **tilt your phone** 🔄)
+    </span>
   </div>
   
-  <table class="min-w-full text-left text-gray-300 border-collapse">
-    <thead class="border-b border-gray-700 text-yellow-400">
+  <table class="w-full text-left text-gray-300 border-collapse">
+    <thead class="table-header">
       <tr>
-        <th class="p-3">Feature</th>
+        <th class="feature-label p-4"> 
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📊</span>
+            <span>Features</span>
+          </div>
+        </th>
         {% for perfume in perfumes %}
-          <th class="p-3 text-center relative">
+          <th class="perfume-column p-4 text-center relative min-w-[250px]">
             <button 
               hx-get="{% url 'compare_perfumes' %}?{% for p in perfumes %}{% if p.id != perfume.id %}perfumes={{ p.id }}&{% endif %}{% endfor %}"
               hx-target="#compare-results"
               hx-swap="innerHTML"
-              class="absolute top-1 right-1 text-gray-500 hover:text-red-500 transition"
+              class="remove-btn absolute top-2 right-2 w-8 h-8 rounded-full text-white font-bold shadow-lg z-20 flex items-center justify-center"
               title="Remove {{ perfume.name }}"
             >
-              ✖
+              ✕
             </button>
-            <div class="flex flex-col items-center">
+            <div class="flex flex-col items-center gap-3">
               {% if perfume.image %}
-                <img src="{{ perfume.image.url }}" class="w-24 h-24 object-cover rounded-lg mb-2 border border-gray-700">
+                <img src="{{ perfume.image.url }}" 
+                     class="perfume-image-compare w-28 h-28 object-cover rounded-2xl shadow-xl" 
+                     alt="{{ perfume.name }}">
               {% elif perfume.image_url %}
-                <img src="{{ perfume.image_url }}" class="w-24 h-24 object-cover rounded-lg mb-2 border border-gray-700">
+                <img src="{{ perfume.image_url }}" 
+                     class="perfume-image-compare w-28 h-28 object-cover rounded-2xl shadow-xl"
+                     alt="{{ perfume.name }}">
               {% else %}
-                <div class="w-24 h-24 bg-gray-800 flex items-center justify-center text-gray-500 rounded-lg mb-2">No Image</div>
+                <div class="perfume-image-compare w-28 h-28 bg-gradient-to-br from-gray-800 to-gray-900 flex flex-col items-center justify-center text-gray-500 rounded-2xl">
+                  <span class="text-3xl opacity-30">✦</span>
+                  <span class="text-xs mt-1">No Image</span>
+                </div>
               {% endif %}
-              <span class="font-semibold text-white text-sm">{{ perfume.name }}</span>
-              <span class="text-xs text-gray-400">{{ perfume.brand }}</span>
+              <div>
+                <span class="font-bold text-white text-base block">{{ perfume.name }}</span>
+                <span class="text-sm text-[var(--gold)]">{{ perfume.brand }}</span>
+              </div>
             </div>
           </th>
         {% endfor %}
       </tr>
     </thead>
-    <tbody class="divide-y divide-gray-800">
-      <tr><td class="p-3 font-medium">Country</td>{% for p in perfumes %}<td class="p-3">{{ p.country|default:"–" }}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Gender</td>{% for p in perfumes %}<td class="p-3">{{ p.gender|default:"–" }}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Year</td>{% for p in perfumes %}<td class="p-3">{{ p.year|default:"–" }}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Rating</td>{% for p in perfumes %}<td class="p-3">⭐ {{ p.rating_value|default:"–" }} ({{ p.rating_count|default:"0" }})</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Top Notes</td>{% for p in perfumes %}<td class="p-3">{{ p.top_notes|default:"–" }}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Middle Notes</td>{% for p in perfumes %}<td class="p-3">{{ p.middle_notes|default:"–" }}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Base Notes</td>{% for p in perfumes %}<td class="p-3">{{ p.base_notes|default:"–" }}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Main Accords</td>{% for p in perfumes %}<td class="p-3">{{ p.mainaccord1 }}, {{ p.mainaccord2 }}, {{ p.mainaccord3 }}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Perfumer(s)</td>{% for p in perfumes %}<td class="p-3">{{ p.perfumer1 }}{% if p.perfumer2 %}, {{ p.perfumer2 }}{% endif %}</td>{% endfor %}</tr>
-      <tr><td class="p-3 font-medium">Description</td>{% for p in perfumes %}<td class="p-3 text-sm leading-relaxed">{{ p.description|truncatewords:40|default:"No description" }}</td>{% endfor %}</tr>
+    <tbody>
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🌍</span>
+            <span>Country</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <span class="font-semibold">{{ p.country|default:"–" }}</span>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>👤</span>
+            <span>Gender</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <span class="font-semibold">{{ p.gender|default:"–" }}</span>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>📅</span>
+            <span>Year</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <span class="font-semibold">{{ p.year|default:"–" }}</span>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>⭐</span>
+            <span>Rating</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="flex flex-col items-center gap-1">
+              <span class="rating-stars text-xl font-bold">{{ p.rating_value|default:"–" }}</span>
+              <span class="text-xs text-gray-400">({{ p.rating_count|default:"0" }} reviews)</span>
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🌸</span>
+            <span>Top Notes</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed">
+              {{ p.top_notes|default:"–" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🌺</span>
+            <span>Middle Notes</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed">
+              {{ p.middle_notes|default:"–" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🪵</span>
+            <span>Base Notes</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed">
+              {{ p.base_notes|default:"–" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🎵</span>
+            <span>Main Accords</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="flex flex-wrap justify-center gap-1">
+              {% if p.mainaccord1 %}
+                <span class="accord-badge">{{ p.mainaccord1 }}</span>
+              {% endif %}
+              {% if p.mainaccord2 %}
+                <span class="accord-badge">{{ p.mainaccord2 }}</span>
+              {% endif %}
+              {% if p.mainaccord3 %}
+                <span class="accord-badge">{{ p.mainaccord3 }}</span>
+              {% endif %}
+              {% if not p.mainaccord1 and not p.mainaccord2 and not p.mainaccord3 %}
+                <span>–</span>
+              {% endif %}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>👨‍🔬</span>
+            <span>Perfumer(s)</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="text-sm">
+              {{ p.perfumer1|default:"–" }}{% if p.perfumer2 %}, {{ p.perfumer2 }}{% endif %}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>📝</span>
+            <span>Description</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed text-gray-400">
+              {{ p.description|truncatewords:40|default:"No description available" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
     </tbody>
   </table>
+  
+  
+
 </div>
+
 {% else %}
-<p class="text-center text-gray-400 mt-6">Select up to 4 perfumes above to compare them.</p>
+<div class="empty-state text-center py-20">
+  <div class="mb-6">
+    <span class="text-8xl opacity-20">⚖️</span>
+  </div>
+  <h3 class="text-2xl font-bold text-gray-400 mb-3">Start Your Comparison</h3>
+  <p class="text-gray-500 text-lg max-w-md mx-auto">
+    Select up to 4 perfumes above to compare their features, notes, and ratings side by side
+  </p>
+</div>
 {% endif %}

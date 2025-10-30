@@ -1,16 +1,347 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<div class="min-h-screen flex flex-col items-center justify-center text-center bg-gray-950 text-white">
-  <h1 class="text-5xl font-bold mb-4">Welcome to Scentpedia</h1>
-  <p class="text-gray-400 text-lg max-w-xl mb-8">
-    Discover and explore the world’s finest perfumes from around the globe.
-  </p>
+{% load i18n %}
 
-  <div class="flex space-x-4">
-    <a href="{% url 'perfume_list' %}" 
-       class="bg-red-600 px-6 py-3 rounded-xl text-white text-lg font-semibold hover:bg-red-700 transition">
-       Browse Perfumes
-    </a>
+<style>
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.3),
+                  0 0 40px rgba(212, 175, 55, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 40px rgba(212, 175, 55, 0.5),
+                  0 0 60px rgba(212, 175, 55, 0.2);
+    }
+  }
+
+  .hero-slider {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-slider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 50%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .perfume-image-container {
+    position: relative;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .perfume-image-container::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), transparent);
+    border-radius: 24px;
+    filter: blur(20px);
+    opacity: 0.6;
+    animation: pulse-glow 3s ease-in-out infinite;
+  }
+
+  .slide-content {
+    animation: slideIn 0.8s ease-out;
+  }
+
+  .luxury-button {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #d4af37, #f4e4b8);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+
+  .luxury-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .luxury-button:hover::before {
+    left: 100%;
+  }
+
+  .luxury-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+  }
+
+  .secondary-button {
+    position: relative;
+    background: rgba(212, 175, 55, 0.1);
+    border: 2px solid #d4af37;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .secondary-button:hover {
+    background: rgba(212, 175, 55, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.3);
+    border-color: #f4e4b8;
+  }
+
+  .nav-arrow {
+    background: rgba(212, 175, 55, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    transition: all 0.3s;
+  }
+
+  .nav-arrow:hover {
+    background: rgba(212, 175, 55, 0.4);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+  }
+
+  .cta-section {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    backdrop-filter: blur(10px);
+  }
+
+  .section-title {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8, #d4af37);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  .loading-spinner {
+    border-color: rgba(212, 175, 55, 0.2);
+    border-top-color: #d4af37;
+  }
+
+  /* Mobile sticky buttons enhancement */
+  .mobile-cta-bar {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.98), rgba(0, 0, 0, 0.95));
+    backdrop-filter: blur(20px);
+    border-top: 2px solid rgba(212, 175, 55, 0.3);
+  }
+</style>
+
+<!-- Hero Slider Section -->
+<div class="hero-slider relative w-full min-h-[500px] md:min-h-[600px] overflow-hidden flex items-center justify-center">
+  
+  <div id="slider" class="flex transition-transform duration-700 ease-in-out w-full h-full">
+    {% for perfume in featured_perfumes %}
+      <div class="min-w-full flex flex-col items-center justify-center p-8 text-center h-full">
+        <div class="slide-content flex flex-col md:flex-row items-center justify-center max-w-5xl mx-auto gap-8 md:gap-12">
+          
+          <div class="perfume-image-container relative">
+            <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}" 
+                 class="w-64 h-64 md:w-80 md:h-80 object-cover rounded-3xl shadow-2xl relative z-10">
+          </div>
+          
+          <div class="max-w-lg text-center md:text-left space-y-4">
+            <div class="inline-block px-4 py-1 bg-[var(--gold)]/20 border border-[var(--gold)] rounded-full text-xs uppercase tracking-widest text-[var(--gold)] mb-2">
+              Featured
+            </div>
+            <h2 class="text-4xl lg:text-6xl font-extrabold text-white leading-tight">
+              {{ perfume.name }}
+            </h2>
+            <p class="text-[var(--gold)] text-xl font-semibold tracking-wide">
+              {{ perfume.brand }}
+            </p>
+            <p class="text-gray-300 text-base leading-relaxed">
+              {{ perfume.description|truncatewords:25 }}
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start mt-8">
+              <a href="{% url 'perfume_detail' perfume.id %}" 
+                 class="luxury-button px-8 py-4 rounded-xl font-bold text-black transition duration-300 shadow-lg text-center text-lg">
+                 Discover More →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Navigation Arrows -->
+  <button id="prevSlide" class="nav-arrow absolute left-4 md:left-8 top-1/2 transform -translate-y-1/2 z-30 p-4 rounded-full transition duration-300">
+    <span class="text-2xl text-[var(--gold)]">‹</span>
+  </button>
+  <button id="nextSlide" class="nav-arrow absolute right-4 md:right-8 top-1/2 transform -translate-y-1/2 z-30 p-4 rounded-full transition duration-300">
+    <span class="text-2xl text-[var(--gold)]">›</span>
+  </button>
+
+  <!-- Slide Indicators -->
+  <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-30">
+    {% for perfume in featured_perfumes %}
+      <div class="slide-indicator w-2 h-2 rounded-full bg-gray-600 transition-all duration-300" data-index="{{ forloop.counter0 }}"></div>
+    {% endfor %}
   </div>
 </div>
+
+<!-- CTA Buttons Section -->
+<div class="cta-section fixed bottom-0 left-0 right-0 z-50 
+            mobile-cta-bar
+            flex flex-col gap-3 p-4 
+            sm:relative sm:flex-row sm:w-auto sm:justify-center sm:gap-6 sm:p-6 sm:mx-auto sm:mt-8 sm:max-w-2xl sm:rounded-2xl">
+    
+    <a href="{% url 'compare_perfumes' %}" 
+       class="luxury-button px-8 py-4 rounded-xl text-black text-lg font-bold 
+              transition duration-300 shadow-lg text-center flex-1 sm:flex-initial">
+       <span class="mr-2">⚖️</span>Compare Perfumes
+    </a>
+
+    <a href="{% url 'perfume_list' %}" 
+       class="secondary-button px-8 py-4 rounded-xl text-white text-lg font-bold 
+              transition duration-300 shadow-lg text-center flex-1 sm:flex-initial">
+       <span class="mr-2">✨</span>Explore Collection
+    </a>
+</div>
+
+<!-- Perfumes Grid Section -->
+<div class="container mx-auto px-4 py-16 mb-20 sm:mb-8"> 
+  <div class="text-center mb-12">
+    <h1 class="section-title text-4xl md:text-5xl font-extrabold mb-4">Our Signature Collection</h1>
+    <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+      Discover the finest fragrances curated for the discerning connoisseur
+    </p>
+  </div>
+
+  <div id="perfume-list">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+      {% for perfume in perfumes %}
+        {% include 'perfumes/_perfume_card.html' %}
+      {% empty %}
+        <div class="col-span-full text-center py-20">
+          <div class="text-6xl mb-4 opacity-50">✦</div>
+          <p class="text-gray-500 text-xl">No perfumes found yet. Check back soon!</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div id="loading" class="text-center py-12 hidden">
+    <div class="loading-spinner animate-spin rounded-full h-12 w-12 border-4 mx-auto mb-4"></div>
+    <p class="text-[var(--gold)] font-semibold">Loading more treasures...</p>
+  </div>
+</div>
+
+<script>
+// Infinite Scroll
+let page = 2;
+let loading = false;
+
+window.addEventListener('scroll', () => {
+  if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 200 && !loading) {
+    loading = true;
+    document.getElementById('loading').classList.remove('hidden');
+
+    fetch(`?page=${page}`)
+      .then(res => {
+        if (!res.ok || res.status === 204) {
+            document.getElementById('loading').classList.add('hidden');
+            loading = false;
+            return null; 
+        }
+        return res.text();
+      })
+      .then(data => {
+        if (!data) return;
+        
+        const parser = new DOMParser();
+        const html = parser.parseFromString(data, 'text/html');
+        const newPerfumes = html.querySelector('#perfume-list .grid').children;
+        
+        const perfumeGrid = document.querySelector('#perfume-list .grid');
+        Array.from(newPerfumes).forEach(item => perfumeGrid.appendChild(item));
+        
+        document.getElementById('loading').classList.add('hidden');
+        loading = false;
+        page++;
+      })
+      .catch(error => {
+        console.error('Error loading more perfumes:', error);
+        document.getElementById('loading').classList.add('hidden');
+        loading = false;
+      });
+  }
+});
+
+// Slider functionality
+const slider = document.getElementById('slider');
+const slides = slider.children.length;
+const indicators = document.querySelectorAll('.slide-indicator');
+let index = 0;
+
+function updateIndicators() {
+  indicators.forEach((indicator, i) => {
+    if (i === index) {
+      indicator.classList.remove('bg-gray-600', 'w-2');
+      indicator.classList.add('bg-[var(--gold)]', 'w-8');
+    } else {
+      indicator.classList.remove('bg-[var(--gold)]', 'w-8');
+      indicator.classList.add('bg-gray-600', 'w-2');
+    }
+  });
+}
+
+document.getElementById('nextSlide').addEventListener('click', () => moveSlide(1));
+document.getElementById('prevSlide').addEventListener('click', () => moveSlide(-1));
+
+indicators.forEach((indicator, i) => {
+  indicator.addEventListener('click', () => {
+    index = i;
+    slider.style.transform = `translateX(-${index * 100}%)`;
+    updateIndicators();
+  });
+});
+
+function moveSlide(direction) {
+  index = (index + direction + slides) % slides;
+  slider.style.transform = `translateX(-${index * 100}%)`;
+  updateIndicators();
+}
+
+slider.style.transition = 'transform 0.7s ease-in-out';
+updateIndicators();
+
+// Auto slide
+setInterval(() => moveSlide(1), 6000);
+</script>
+
 {% endblock %}

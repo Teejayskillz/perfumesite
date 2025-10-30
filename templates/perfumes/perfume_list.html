@@ -1,93 +1,370 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container py-4">
-  <h1 class="text-2xl font-bold mb-4 text-center text-yellow-400">All Perfumes</h1>
 
+<style>
+  @keyframes slideInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px rgba(212, 175, 55, 0);
+    }
+  }
+
+  .page-title {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8, #d4af37);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  .filter-container {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(0, 0, 0, 0.8));
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    animation: slideInDown 0.6s ease-out;
+  }
+
+  .filter-select, .filter-input {
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .filter-select:focus, .filter-input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    background: rgba(0, 0, 0, 0.8);
+  }
+
+  .filter-select:hover, .filter-input:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+  }
+
+  .apply-button {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .apply-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .apply-button:hover::before {
+    left: 100%;
+  }
+
+  .apply-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+  }
+
+  .perfume-grid {
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .pagination-btn {
+    background: rgba(212, 175, 55, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .pagination-btn:hover:not(.disabled) {
+    background: rgba(212, 175, 55, 0.2);
+    border-color: #d4af37;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+
+  .pagination-btn.active {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8);
+    color: black;
+    font-weight: bold;
+    border-color: #d4af37;
+  }
+
+  .pagination-btn.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .compare-fab {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8);
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+    animation: pulse 2s infinite;
+    transition: all 0.3s ease;
+  }
+
+  .compare-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px rgba(212, 175, 55, 0.6);
+  }
+
+  .compare-badge {
+    background: black;
+    color: #d4af37;
+    border: 2px solid #d4af37;
+  }
+
+  .empty-state {
+    animation: fadeInUp 0.6s ease-out;
+  }
+</style>
+
+<div class="container max-w-7xl mx-auto py-8 px-4">
+  
+  <!-- Page Title -->
+  <div class="text-center mb-8">
+    <h1 class="page-title text-4xl md:text-5xl font-extrabold mb-3">Perfume Collection</h1>
+    <p class="text-gray-400 text-lg">Discover your signature scent from our curated selection</p>
+  </div>
+
+  <!-- Filter Section -->
   <form
     id="filter-form"
-    hx-get="{% url 'filter_perfumes' %}"
-    hx-target="#perfume-list"
-    hx-trigger="change from:select, keyup changed delay:400ms from:input"
-    class="bg-gray-800 text-white p-3 rounded-lg flex flex-wrap gap-3 items-center justify-center mb-6"
+    action="{% url 'perfume_list' %}"
+    method="get"
+    class="filter-container p-6 rounded-2xl mb-8 shadow-2xl"
   >
-    <select name="gender" class="bg-gray-900 p-2 rounded border border-gray-700">
-      <option value="">All Genders</option>
-      <option value="Men">Men</option>
-      <option value="Women">Women</option>
-      <option value="Unisex">Unisex</option>
-    </select>
-
-    <select name="country" class="bg-gray-900 p-2 rounded border border-gray-700">
-      <option value="">All Countries</option>
-      <option value="France">France</option>
-      <option value="USA">USA</option>
-      <option value="Italy">Italy</option>
-      <option value="UAE">UAE</option>
-    </select>
-
-    <input 
-      type="text" 
-      name="brand" 
-      placeholder="Search"
-      class="bg-gray-900 p-2 rounded border border-gray-700"
-    />
-
-    <select name="accord" class="bg-gray-900 p-2 rounded border border-gray-700">
-      <option value="">All Accords</option>
-      <option value="Woody">Woody</option>
-      <option value="Floral">Floral</option>
-      <option value="Fresh">Fresh</option>
-      <option value="Amber">Amber</option>
-      <option value="Musk">Musk</option>
-    </select>
-
-    <select name="rating" class="bg-gray-900 p-2 rounded border border-gray-700">
-      <option value="">Any Rating</option>
-      <option value="4">4★ & Up</option>
-      <option value="3">3★ & Up</option>
-      <option value="2">2★ & Up</option>
-    </select>
-  </form>
-
-  <div id="perfume-list">
-    <form id="compareForm" method="get" action="{% url 'compare_perfumes' %}">
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {% for perfume in perfumes %}
-          {% include 'perfumes/_perfume_card.html' %} 
-        {% empty %}
-          <p class="text-gray-500 text-center py-8 col-span-full">No perfumes found for these filters.</p>
-        {% endfor %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      
+      <!-- Gender Filter -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Gender</label>
+        <select name="gender" class="filter-select w-full p-3 rounded-xl text-white">
+          <option value="">All Genders</option>
+          <option value="Men">Men</option>
+          <option value="Women">Women</option>
+          <option value="Unisex">Unisex</option>
+        </select>
       </div>
 
-      <div class="fixed bottom-5 right-5">
-        <button 
-          type="submit" 
-          id="compareButton" 
-          class="bg-red-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-red-700 transition hidden">
-          Compare Selected (<span id="compareCount">0</span>)
+      <!-- Country Filter -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Country</label>
+        <select name="country" class="filter-select w-full p-3 rounded-xl text-white">
+          <option value="">All Countries</option>
+          <option value="France">France</option>
+          <option value="USA">USA</option>
+          <option value="Italy">Italy</option>
+          <option value="UAE">UAE</option>
+        </select>
+      </div>
+
+      <!-- Brand Search -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Brand</label>
+        <input 
+          type="text" 
+          name="brand" 
+          placeholder="Search brands..."
+          class="filter-input w-full p-3 rounded-xl text-white placeholder-gray-500"
+        />
+      </div>
+
+      <!-- Accord Filter -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Accord</label>
+        <select name="accord" class="filter-select w-full p-3 rounded-xl text-white">
+          <option value="">All Accords</option>
+          <option value="Woody">Woody</option>
+          <option value="Floral">Floral</option>
+          <option value="Fresh">Fresh</option>
+          <option value="Amber">Amber</option>
+          <option value="Musk">Musk</option>
+        </select>
+      </div>
+
+      <!-- Rating Filter -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Rating</label>
+        <select name="rating" class="filter-select w-full p-3 rounded-xl text-white">
+          <option value="">Any Rating</option>
+          <option value="4">4★ & Up</option>
+          <option value="3">3★ & Up</option>
+          <option value="2">2★ & Up</option>
+        </select>
+      </div>
+
+      <!-- Apply Button -->
+      <div class="flex items-end">
+        <button type="submit" class="apply-button w-full text-black font-bold px-6 py-3 rounded-xl transition">
+          <span class="flex items-center justify-center gap-2">
+            <span>🔍</span>
+            <span>Apply</span>
+          </span>
         </button>
       </div>
-    </form>
+    </div>
+  </form>
+
+  <!-- Perfume Grid -->
+  <div id="perfume-list" class="perfume-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+    {% for perfume in perfumes %}
+      {% include 'perfumes/_perfume_card.html' %}
+    {% empty %}
+      <div class="empty-state col-span-full text-center py-20">
+        <div class="mb-6">
+          <span class="text-8xl opacity-20">✦</span>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-400 mb-2">No Perfumes Found</h3>
+        <p class="text-gray-500">Try adjusting your filters to see more results</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination Controls -->
+  {% if perfumes.paginator.num_pages > 1 %}
+  <div class="flex justify-center items-center gap-3 mt-12 flex-wrap">
+    
+    <!-- Previous Button -->
+    {% if perfumes.has_previous %}
+      <a href="?page={{ perfumes.previous_page_number }}" 
+         class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
+        ← Previous
+      </a>
+    {% else %}
+      <span class="pagination-btn disabled px-6 py-3 text-gray-600 rounded-xl">
+        ← Previous
+      </span>
+    {% endif %}
+
+    <!-- Page Numbers -->
+    <div class="flex gap-2">
+      {% for num in perfumes.paginator.page_range %}
+        {% if num == perfumes.number %}
+          <span class="pagination-btn active px-4 py-3 rounded-xl">{{ num }}</span>
+        {% elif num > perfumes.number|add:'-3' and num < perfumes.number|add:'3' %}
+          <a href="?page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
+            {{ num }}
+          </a>
+        {% elif num == 1 or num == perfumes.paginator.num_pages %}
+          <a href="?page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
+            {{ num }}
+          </a>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Next Button -->
+    {% if perfumes.has_next %}
+      <a href="?page={{ perfumes.next_page_number }}" 
+         class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
+        Next →
+      </a>
+    {% else %}
+      <span class="pagination-btn disabled px-6 py-3 text-gray-600 rounded-xl">
+        Next →
+      </span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Floating Compare Button -->
+  <div class="fixed bottom-8 right-8 z-50">
+    <button 
+      type="button" 
+      id="compareButton" 
+      onclick="goToCompare()"
+      class="compare-fab text-black px-8 py-4 rounded-full shadow-2xl transition hidden font-bold text-lg">
+      <span class="flex items-center gap-3">
+        <span>⚖️</span>
+        <span>Compare</span>
+        <span class="compare-badge px-3 py-1 rounded-full text-sm font-bold" id="compareCount">0</span>
+      </span>
+    </button>
   </div>
 </div>
 
 <script>
-  // 💡 Compare Button Logic
+  // Compare Button Logic
+  let selectedPerfumes = [];
+
   document.addEventListener("change", (e) => {
     if (!e.target.matches('input[name="perfumes"]')) return;
 
-    const selected = document.querySelectorAll('input[name="perfumes"]:checked').length;
     const compareBtn = document.getElementById('compareButton');
     const compareCount = document.getElementById('compareCount');
+    
+    // Get all checked checkboxes
+    const checked = document.querySelectorAll('input[name="perfumes"]:checked');
+    selectedPerfumes = Array.from(checked).map(cb => cb.value);
+    
+    compareCount.textContent = selectedPerfumes.length;
+    compareBtn.classList.toggle('hidden', selectedPerfumes.length === 0);
 
-    compareCount.textContent = selected;
-    compareBtn.classList.toggle('hidden', selected === 0);
-
-    if (selected > 4) {
+    // Limit to 4 perfumes
+    if (selectedPerfumes.length > 4) {
       alert("You can only compare up to 4 perfumes at once.");
       e.target.checked = false;
-      compareCount.textContent = document.querySelectorAll('input[name="perfumes"]:checked').length;
+      selectedPerfumes = Array.from(document.querySelectorAll('input[name="perfumes"]:checked')).map(cb => cb.value);
+      compareCount.textContent = selectedPerfumes.length;
     }
   });
+
+  // Navigate to compare page with selected perfumes
+  function goToCompare() {
+    if (selectedPerfumes.length > 0) {
+      const params = selectedPerfumes.map(id => `perfumes=${id}`).join('&');
+      window.location.href = `{% url 'compare_perfumes' %}?${params}`;
+    }
+  }
+
+  // Preserve filter values on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Restore filter values
+    ['gender', 'country', 'brand', 'accord', 'rating'].forEach(filter => {
+      const value = urlParams.get(filter);
+      if (value) {
+        const input = document.querySelector(`[name="${filter}"]`);
+        if (input) input.value = value;
+      }
+    });
+  });
 </script>
+
 {% endblock %}

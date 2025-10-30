@@ -8,26 +8,58 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import Perfume, Review
 from .forms import ReviewForm
-
+from django.core.paginator import Paginator
+import random
 
 
 
 def home(request):
-    return render(request, 'perfumes/home.html')
+    perfumes = Perfume.objects.all().order_by('-id')  # Show newest first
+    paginator = Paginator(perfumes, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    # Random 5 featured perfumes for the slider
+    featured_perfumes = random.sample(list(perfumes), min(5, len(perfumes)))
+
+    # If infinite scroll request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return render(request, 'partials/perfume_list.html', {'perfumes': page_obj})
+
+    return render(request, 'perfumes/home.html', {
+        'perfumes': page_obj,
+        'featured_perfumes': featured_perfumes,
+    })
+
 
 def perfume_list(request):
-    query = request.GET.get('q')  # get the search input
-    if query:
-        perfumes = Perfume.objects.filter(
-            name__icontains=query
-        ) | Perfume.objects.filter(
-            brand__icontains=query
-        )
-    else:
-        perfumes = Perfume.objects.all()
+    perfumes = Perfume.objects.all().order_by('name')
 
-    perfumes = perfumes.order_by('brand', 'name')
-    return render(request, 'perfumes/perfume_list.html', {'perfumes': perfumes, 'query': query})
+    # Optional filters
+    gender = request.GET.get('gender')
+    country = request.GET.get('country')
+    brand = request.GET.get('brand')
+    accord = request.GET.get('accord')
+    rating = request.GET.get('rating')
+
+    if gender:
+        perfumes = perfumes.filter(gender__iexact=gender)
+    if country:
+        perfumes = perfumes.filter(country__iexact=country)
+    if brand:
+        perfumes = perfumes.filter(brand__icontains=brand)
+    if accord:
+        perfumes = perfumes.filter(
+            mainaccord1__icontains=accord
+        ) | perfumes.filter(mainaccord2__icontains=accord)
+    if rating:
+        perfumes = perfumes.filter(rating_value__gte=rating)
+
+    paginator = Paginator(perfumes, 12)  # show 12 perfumes per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'perfumes/perfume_list.html', {'perfumes': page_obj})
 
 
 def perfume_detail(request, pk):

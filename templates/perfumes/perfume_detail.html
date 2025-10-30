@@ -1,119 +1,411 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container max-w-4xl mx-auto py-6">
-  <div class="bg-gray-900 rounded-xl shadow p-4 md:p-6">
-    <div class="flex flex-col md:flex-row gap-4">
-      {% if perfume.image %}
-        <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}" class="w-full md:w-1/3 rounded-lg object-cover">
-      {% elif perfume.image_url %}
-        <img src="{{ perfume.image_url }}" alt="{{ perfume.name }}" class="w-full md:w-1/3 rounded-lg object-cover">
-      {% else %}
-        <div class="w-full md:w-1/3 bg-gray-800 h-64 flex items-center justify-center text-gray-500">No Image</div>
-      {% endif %}
 
-      <div class="flex-1 text-white">
-        <h1 class="text-2xl font-bold">{{ perfume.name }}</h1>
-        <p class="text-gray-400 mb-2">{{ perfume.brand }} • {{ perfume.country }}</p>
-        <p class="text-yellow-400 mb-4">⭐ {{ perfume.rating_value|default:"–" }} ({{ perfume.rating_count|default:0 }})</p>
+<style>
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
 
-        {% if perfume.year %}
-        <p class="mb-2"><strong>Released:</strong> {{ perfume.year }}</p>
-        {% endif %}
+  @keyframes shimmerText {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
 
-        <p class="text-gray-300 mb-4">{{ perfume.description|linebreaks }}</p>
-        <div class="mt-6 text-center">
-          <a 
-            href="{% url 'compare_perfumes' %}?perfumes={{ perfume.id }}" 
-            class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
-          >
-            🔍 Compare with Another Perfume
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(2deg); }
+  }
+
+  .detail-container {
+    animation: fadeInScale 0.6s ease-out;
+  }
+
+  .perfume-image-detail {
+    animation: float 6s ease-in-out infinite;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .perfume-image-detail:hover {
+    transform: scale(1.05) rotate(3deg);
+  }
+
+  .image-glow {
+    position: relative;
+  }
+
+  .image-glow::before {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.4), rgba(212, 175, 55, 0.1));
+    border-radius: 24px;
+    filter: blur(30px);
+    opacity: 0.6;
+    z-index: -1;
+  }
+
+  .gold-badge {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+
+  .note-card {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(212, 175, 55, 0.02));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .note-card:hover {
+    background: rgba(212, 175, 55, 0.1);
+    border-color: rgba(212, 175, 55, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2);
+  }
+
+  .share-button {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .share-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+  }
+
+  .share-button:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .share-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .luxury-button {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .luxury-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+  }
+
+  .luxury-button:hover::after {
+    left: 100%;
+  }
+
+  .luxury-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+  }
+
+  .section-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.3;
+  }
+
+  .review-card {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.03), rgba(0, 0, 0, 0.5));
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    transition: all 0.3s ease;
+  }
+
+  .review-card:hover {
+    border-color: rgba(212, 175, 55, 0.3);
+    transform: translateX(5px);
+  }
+
+  .similar-perfume-card {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(212, 175, 55, 0.1);
+  }
+
+  .similar-perfume-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(212, 175, 55, 0.4);
+    box-shadow: 0 12px 30px rgba(212, 175, 55, 0.2);
+  }
+
+  .rating-stars {
+    color: #d4af37;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  }
+</style>
+
+<div class="container max-w-6xl mx-auto py-8 px-4">
+  <div class="detail-container bg-gradient-to-br from-gray-900 to-black rounded-3xl shadow-2xl p-6 md:p-10 border border-gray-800">
+    
+    <!-- Main Content -->
+    <div class="flex flex-col lg:flex-row gap-8 mb-10">
+      
+      <!-- Image Section -->
+      <div class="lg:w-2/5">
+        <div class="image-glow sticky top-24">
+          {% if perfume.image %}
+            <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}" 
+                 class="perfume-image-detail w-full rounded-2xl object-cover shadow-2xl">
+          {% elif perfume.image_url %}
+            <img src="{{ perfume.image_url }}" alt="{{ perfume.name }}" 
+                 class="perfume-image-detail w-full rounded-2xl object-cover shadow-2xl">
+          {% else %}
+            <div class="w-full bg-gradient-to-br from-gray-800 to-gray-900 h-96 flex flex-col items-center justify-center text-gray-500 rounded-2xl border-2 border-dashed border-gray-700">
+              <span class="text-6xl mb-4 opacity-30">✦</span>
+              <span class="text-lg">No Image Available</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Details Section -->
+      <div class="lg:w-3/5 space-y-6">
+        
+        <!-- Header -->
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <span class="gold-badge text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
+              Premium Fragrance
+            </span>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-3 leading-tight">
+            {{ perfume.name }}
+          </h1>
+          <div class="flex items-center gap-4 text-lg text-gray-400 mb-4">
+            <span class="text-[var(--gold)] font-semibold">{{ perfume.brand }}</span>
+            <span class="text-gray-600">•</span>
+            <span>{{ perfume.country }}</span>
+            {% if perfume.year %}
+              <span class="text-gray-600">•</span>
+              <span>{{ perfume.year }}</span>
+            {% endif %}
+          </div>
+          
+          <!-- Rating -->
+          <div class="flex items-center gap-2 mb-6">
+            <span class="rating-stars text-2xl">★★★★★</span>
+            <span class="text-[var(--gold)] font-bold text-xl">{{ perfume.rating_value|default:"–" }}</span>
+            <span class="text-gray-500">({{ perfume.rating_count|default:0 }} reviews)</span>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Description -->
+        <div class="text-gray-300 leading-relaxed text-lg">
+          {{ perfume.description|linebreaks }}
+        </div>
+
+        <!-- Compare Button -->
+        <div>
+          <a href="{% url 'compare_perfumes' %}?perfumes={{ perfume.id }}" 
+             class="luxury-button inline-flex items-center gap-3 text-black font-bold py-4 px-8 rounded-xl transition duration-300 text-lg">
+            <span class="text-xl">⚖️</span>
+            Compare with Another Perfume
           </a>
         </div>
 
-        <div class="space-y-2 text-sm text-gray-400 mt-6">
-          <p><strong>Top Notes:</strong> {{ perfume.top_notes }}</p>
-          <p><strong>Middle Notes:</strong> {{ perfume.middle_notes }}</p>
-          <p><strong>Base Notes:</strong> {{ perfume.base_notes }}</p>
+        <div class="section-divider"></div>
+
+        <!-- Fragrance Notes -->
+        <div class="space-y-4">
+          <h2 class="text-2xl font-bold text-[var(--gold)] mb-4">Fragrance Profile</h2>
+          
+          <div class="note-card rounded-xl p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl">🌸</span>
+              <h3 class="font-bold text-white text-lg">Top Notes</h3>
+            </div>
+            <p class="text-gray-300 ml-11">{{ perfume.top_notes }}</p>
+          </div>
+
+          <div class="note-card rounded-xl p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl">🌺</span>
+              <h3 class="font-bold text-white text-lg">Middle Notes</h3>
+            </div>
+            <p class="text-gray-300 ml-11">{{ perfume.middle_notes }}</p>
+          </div>
+
+          <div class="note-card rounded-xl p-5">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-2xl">🪵</span>
+              <h3 class="font-bold text-white text-lg">Base Notes</h3>
+            </div>
+            <p class="text-gray-300 ml-11">{{ perfume.base_notes }}</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="mt-6 text-gray-400 text-sm">
-      <p><strong>Perfumer(s):</strong> {{ perfume.perfumer1 }}{% if perfume.perfumer2 %}, {{ perfume.perfumer2 }}{% endif %}</p>
-      <p><strong>Main Accords:</strong> {{ perfume.mainaccord1 }}, {{ perfume.mainaccord2 }}, {{ perfume.mainaccord3 }}, {{ perfume.mainaccord4 }}, {{ perfume.mainaccord5 }}</p>
-      <a href="{{ perfume.url }}" target="_blank" class="text-blue-400 hover:underline mt-2 inline-block">View on Fragrantica</a>
+    <div class="section-divider my-10"></div>
 
-      <!-- 🔗 Share Buttons -->
-      <div class="mt-4 flex justify-center gap-3">
-        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
-           target="_blank"
-           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-           Facebook
-        </a>
-        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=Check out this perfume!"
-           target="_blank"
-           class="bg-blue-400 hover:bg-blue-500 text-white px-4 py-2 rounded-lg transition">
-           Twitter
-        </a>
-        <a href="https://wa.me/?text=Check out this perfume: {{ request.build_absolute_uri }}"
-           target="_blank"
-           class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
-           WhatsApp
-        </a>
-        <button 
-           onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}').then(() => alert('Link copied!'))"
-           class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition">
-           Copy Link
-        </button>
+    <!-- Additional Information -->
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-[var(--gold)] font-bold text-lg mb-4">Perfumer(s)</h3>
+        <p class="text-gray-300 text-lg">
+          {{ perfume.perfumer1 }}{% if perfume.perfumer2 %}, {{ perfume.perfumer2 }}{% endif %}
+        </p>
+      </div>
+
+      <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-[var(--gold)] font-bold text-lg mb-4">Main Accords</h3>
+        <div class="flex flex-wrap gap-2">
+          {% if perfume.mainaccord1 %}
+            <span class="bg-[var(--gold)]/20 text-[var(--gold)] px-3 py-1 rounded-full text-sm border border-[var(--gold)]/30">
+              {{ perfume.mainaccord1 }}
+            </span>
+          {% endif %}
+          {% if perfume.mainaccord2 %}
+            <span class="bg-[var(--gold)]/20 text-[var(--gold)] px-3 py-1 rounded-full text-sm border border-[var(--gold)]/30">
+              {{ perfume.mainaccord2 }}
+            </span>
+          {% endif %}
+          {% if perfume.mainaccord3 %}
+            <span class="bg-[var(--gold)]/20 text-[var(--gold)] px-3 py-1 rounded-full text-sm border border-[var(--gold)]/30">
+              {{ perfume.mainaccord3 }}
+            </span>
+          {% endif %}
+          {% if perfume.mainaccord4 %}
+            <span class="bg-[var(--gold)]/20 text-[var(--gold)] px-3 py-1 rounded-full text-sm border border-[var(--gold)]/30">
+              {{ perfume.mainaccord4 }}
+            </span>
+          {% endif %}
+          {% if perfume.mainaccord5 %}
+            <span class="bg-[var(--gold)]/20 text-[var(--gold)] px-3 py-1 rounded-full text-sm border border-[var(--gold)]/30">
+              {{ perfume.mainaccord5 }}
+            </span>
+          {% endif %}
+        </div>
       </div>
     </div>
 
+    <!-- Share Buttons -->
+    <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 mb-10 border border-gray-700">
+      <h3 class="text-white font-bold text-xl mb-4 text-center">Share This Fragrance</h3>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}"
+           target="_blank" rel="noopener"
+           class="share-button bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition font-semibold flex items-center gap-2">
+           <span>📘</span> Facebook
+        </a>
+        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=Check out this perfume!"
+           target="_blank" rel="noopener"
+           class="share-button bg-sky-500 hover:bg-sky-600 text-white px-6 py-3 rounded-xl transition font-semibold flex items-center gap-2">
+           <span>🐦</span> Twitter
+        </a>
+        <a href="https://wa.me/?text=Check out this perfume: {{ request.build_absolute_uri }}"
+           target="_blank" rel="noopener"
+           class="share-button bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl transition font-semibold flex items-center gap-2">
+           <span>💬</span> WhatsApp
+        </a>
+        <button onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}').then(() => alert('Link copied to clipboard!'))"
+           class="share-button bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-xl transition font-semibold flex items-center gap-2">
+           <span>🔗</span> Copy Link
+        </button>
+      </div>
+      <div class="text-center mt-4">
+        <a href="{{ perfume.url }}" target="_blank" rel="noopener" 
+           class="text-[var(--gold)] hover:text-[var(--gold-light)] transition inline-flex items-center gap-2 text-sm">
+           <span>🔍</span> View on Fragrantica →
+        </a>
+      </div>
+    </div>
+
+    <!-- Similar Perfumes -->
     {% if similar_perfumes %}
-      <div class="mt-10">
-        <h2 class="text-xl font-bold text-yellow-400 mb-4">Similar Perfumes</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+      <div class="mb-10">
+        <h2 class="text-3xl font-bold text-[var(--gold)] mb-6 text-center">You Might Also Love</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {% for p in similar_perfumes %}
-            <a href="{% url 'perfume_detail' pk=p.pk %}" class="block bg-gray-900 rounded-lg shadow hover:shadow-lg transition p-2">
+            <a href="{% url 'perfume_detail' pk=p.pk %}" 
+               class="similar-perfume-card block bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg hover:shadow-2xl transition-all p-4">
               {% if p.image %}
-                <img src="{{ p.image.url }}" alt="{{ p.name }}" class="w-full h-32 object-cover rounded-md mb-2">
+                <img src="{{ p.image.url }}" alt="{{ p.name }}" 
+                     class="w-full h-40 object-cover rounded-lg mb-3 shadow-md">
               {% elif p.image_url %}
-                <img src="{{ p.image_url }}" alt="{{ p.name }}" class="w-full h-32 object-cover rounded-md mb-2">
+                <img src="{{ p.image_url }}" alt="{{ p.name }}" 
+                     class="w-full h-40 object-cover rounded-lg mb-3 shadow-md">
+              {% else %}
+                <div class="w-full h-40 bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
+                  <span class="text-4xl opacity-30">✦</span>
+                </div>
               {% endif %}
-              <h3 class="text-white font-semibold truncate">{{ p.name }}</h3>
+              <h3 class="text-white font-semibold truncate text-lg">{{ p.name }}</h3>
               <p class="text-gray-400 text-sm">{{ p.brand }}</p>
             </a>
           {% endfor %}
         </div>
       </div>
     {% endif %}
-<!-- 💬 Reviews Section -->
-<div class="mt-10 bg-gray-900 rounded-xl p-6">
-  <h2 class="text-xl font-semibold text-white mb-4">Reviews</h2>
 
-  <form method="post" class="mb-6">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg">
-      Post Review
-    </button>
-  </form>
+    <div class="section-divider my-10"></div>
 
-  {% if reviews %}
-    <div class="space-y-4">
-      {% for review in reviews %}
-        <div class="bg-gray-800 p-4 rounded-lg">
-          <p class="text-gray-200 mb-2">{{ review.content }}</p>
-          <p class="text-gray-500 text-sm">
-            — {{ review.name }} • {{ review.created_at|date:"M d, Y H:i" }}
-          </p>
+    <!-- Reviews Section -->
+    <div class="bg-gradient-to-br from-gray-900/50 to-black/50 rounded-2xl p-6 md:p-8 border border-gray-800">
+      <h2 class="text-3xl font-bold text-[var(--gold)] mb-6">Customer Reviews</h2>
+
+      <!-- Review Form -->
+      <form method="post" class="mb-8 bg-gray-800/50 rounded-xl p-6 border border-gray-700">
+        {% csrf_token %}
+        <div class="space-y-4">
+          {{ form.as_p }}
         </div>
-      {% endfor %}
+        <button type="submit" 
+                class="luxury-button mt-4 text-black font-bold px-8 py-3 rounded-xl transition duration-300 inline-flex items-center gap-2">
+          <span>✍️</span> Post Review
+        </button>
+      </form>
+
+      <!-- Reviews List -->
+      {% if reviews %}
+        <div class="space-y-4">
+          {% for review in reviews %}
+            <div class="review-card p-6 rounded-xl">
+              <p class="text-gray-200 mb-3 leading-relaxed text-lg">{{ review.content }}</p>
+              <div class="flex items-center justify-between text-sm">
+                <p class="text-[var(--gold)] font-semibold">— {{ review.name }}</p>
+                <p class="text-gray-500">{{ review.created_at|date:"M d, Y • h:i A" }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-12">
+          <span class="text-6xl opacity-20 mb-4 block">💬</span>
+          <p class="text-gray-500 text-lg">No reviews yet. Be the first to share your thoughts!</p>
+        </div>
+      {% endif %}
     </div>
-  {% else %}
-    <p class="text-gray-500">No reviews yet. Be the first to comment!</p>
-  {% endif %}
-</div>
 
   </div>
 </div>
+
 {% endblock %}

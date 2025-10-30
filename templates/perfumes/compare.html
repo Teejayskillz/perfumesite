@@ -8,34 +8,237 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-6">
-  <h1 class="text-3xl font-bold mb-6 text-center text-yellow-400">Compare Perfumes</h1>
 
+<style>
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+    }
+  }
+
+  .page-header {
+    animation: fadeInScale 0.6s ease-out;
+  }
+
+  .compare-title {
+    background: linear-gradient(135deg, #d4af37, #f4e4b8, #d4af37);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    animation: fadeInScale 0.4s ease-out;
+    animation-fill-mode: both;
+  }
+
+  .search-input-wrapper:nth-child(1) { animation-delay: 0.1s; }
+  .search-input-wrapper:nth-child(2) { animation-delay: 0.2s; }
+  .search-input-wrapper:nth-child(3) { animation-delay: 0.3s; }
+  .search-input-wrapper:nth-child(4) { animation-delay: 0.4s; }
+
+  .search-input {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(0, 0, 0, 0.8));
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1), 0 0 20px rgba(212, 175, 55, 0.3);
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  .search-input:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+  }
+
+  .search-input.has-selection {
+    border-color: #d4af37;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(0, 0, 0, 0.9));
+  }
+
+  .suggestions-dropdown {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.98), rgba(26, 26, 26, 0.98));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    animation: slideDown 0.3s ease-out;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .suggestions-dropdown::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .suggestions-dropdown::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+  }
+
+  .suggestions-dropdown::-webkit-scrollbar-thumb {
+    background: rgba(212, 175, 55, 0.5);
+    border-radius: 4px;
+  }
+
+  .suggestions-dropdown::-webkit-scrollbar-thumb:hover {
+    background: rgba(212, 175, 55, 0.7);
+  }
+
+  .suggestion-item {
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .suggestion-item:hover {
+    background: rgba(212, 175, 55, 0.15);
+    padding-left: 1rem;
+  }
+
+  .add-perfume-btn {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05));
+    border: 2px dashed rgba(212, 175, 55, 0.4);
+    transition: all 0.3s ease;
+  }
+
+  .add-perfume-btn:hover {
+    background: rgba(212, 175, 55, 0.15);
+    border-color: #d4af37;
+    border-style: solid;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  }
+
+  .remove-input-btn {
+    background: rgba(220, 38, 38, 0.8);
+    transition: all 0.2s ease;
+  }
+
+  .remove-input-btn:hover {
+    background: rgba(220, 38, 38, 1);
+    transform: scale(1.1);
+  }
+
+  .compare-instructions {
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.05), rgba(0, 0, 0, 0.5));
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    backdrop-filter: blur(10px);
+  }
+
+  .instruction-icon {
+    color: #d4af37;
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  .results-container {
+    animation: fadeInScale 0.6s ease-out;
+  }
+</style>
+
+<div class="container max-w-7xl mx-auto py-8 px-4">
+  
+  <!-- Page Header -->
+  <div class="page-header text-center mb-10">
+    <div class="inline-flex items-center gap-3 mb-4">
+      <span class="text-5xl">⚖️</span>
+    </div>
+    <h1 class="compare-title text-4xl md:text-5xl font-extrabold mb-4">Compare Perfumes</h1>
+    <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+      Select up to 4 fragrances and compare their notes, ratings, and profiles side by side
+    </p>
+  </div>
+
+  <!-- Instructions Card -->
+  <div class="compare-instructions rounded-2xl p-6 mb-8 max-w-3xl mx-auto">
+    <div class="flex items-start gap-4">
+      <span class="instruction-icon text-3xl">💡</span>
+      <div class="flex-1">
+        <h3 class="text-white font-bold text-lg mb-2">How to Compare</h3>
+        <ul class="text-gray-300 space-y-1 text-sm">
+          <li>• Start typing a perfume name in any search box</li>
+          <li>• Select from the dropdown suggestions</li>
+          <li>• Add up to 4 perfumes for detailed comparison</li>
+          <li>• View differences in notes, accords, and ratings</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Inputs Form -->
   <form 
     id="compare-form"
     hx-get="{% url 'compare_perfumes' %}"
     hx-target="#compare-results"
     hx-swap="innerHTML"
-    class="flex flex-wrap items-center justify-center gap-3 mb-8"
+    class="flex flex-wrap items-start justify-center gap-4 mb-8"
   >
     {# Prefill selected perfumes if passed in URL #}
     {% for perfume in perfumes %}
-      <div class="relative perfume-input">
-        <input
-          type="text"
-          name="q" 
-          placeholder="Selected: {{ perfume.name }}"
-          value="{{ perfume.name }} by {{ perfume.brand }}"
-          data-id="{{ perfume.id }}"
-          class="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 w-52 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition"
-          hx-get="{% url 'perfume_suggestions' %}"
-          hx-trigger="keyup changed delay:300ms"
-          hx-target="#suggestions-{{ forloop.counter }}"
-          autocomplete="off"
-        >
+      <div class="search-input-wrapper perfume-input">
+        <div class="relative">
+          <input
+            type="text"
+            name="q" 
+            placeholder="Selected: {{ perfume.name }}"
+            value="{{ perfume.name }} by {{ perfume.brand }}"
+            data-id="{{ perfume.id }}"
+            class="search-input has-selection text-white rounded-xl px-4 py-3 w-64 transition"
+            hx-get="{% url 'perfume_suggestions' %}"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#suggestions-{{ forloop.counter }}"
+            autocomplete="off"
+          >
+          <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-[var(--gold)]">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <button 
+            type="button"
+            class="remove-input-btn absolute -top-2 -right-2 w-6 h-6 rounded-full text-white text-xs font-bold shadow-lg"
+            onclick="removeInput(this)"
+          >
+            ✕
+          </button>
+        </div>
         <div 
           id="suggestions-{{ forloop.counter }}" 
-          class="absolute left-0 top-full bg-gray-800 rounded-lg shadow-lg w-52 z-20 hidden"
+          class="suggestions-dropdown absolute left-0 top-full mt-2 rounded-xl shadow-2xl w-64 z-20 hidden"
         ></div>
       </div>
     {% endfor %}
@@ -43,37 +246,49 @@
     {# Show remaining boxes (default 2 if none prefilled) #}
     {% with remaining=2|add:"-perfumes.count" %}
       {% for i in remaining|make_list %}
-        <div class="relative perfume-input">
-          <input
-            type="text"
-            name="q" 
-            placeholder="Search perfume {{ forloop.counter|add:perfumes.count }}"
-            class="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 w-52 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition"
-            hx-get="{% url 'perfume_suggestions' %}"
-            hx-trigger="keyup changed delay:300ms"
-            hx-target="#suggestions-{{ forloop.counter|add:perfumes.count }}"
-            autocomplete="off"
-          >
+        <div class="search-input-wrapper perfume-input">
+          <div class="relative">
+            <input
+              type="text"
+              name="q" 
+              placeholder="🔍 Search perfume {{ forloop.counter|add:perfumes.count }}"
+              class="search-input text-white rounded-xl px-4 py-3 w-64 transition"
+              hx-get="{% url 'perfume_suggestions' %}"
+              hx-trigger="keyup changed delay:300ms"
+              hx-target="#suggestions-{{ forloop.counter|add:perfumes.count }}"
+              autocomplete="off"
+            >
+            <button 
+              type="button"
+              class="remove-input-btn absolute -top-2 -right-2 w-6 h-6 rounded-full text-white text-xs font-bold shadow-lg hidden"
+              onclick="removeInput(this)"
+            >
+              ✕
+            </button>
+          </div>
           <div 
             id="suggestions-{{ forloop.counter|add:perfumes.count }}" 
-            class="absolute left-0 top-full bg-gray-800 rounded-lg shadow-lg w-52 z-20 hidden"
+            class="suggestions-dropdown absolute left-0 top-full mt-2 rounded-xl shadow-2xl w-64 z-20 hidden"
           ></div>
         </div>
       {% endfor %}
     {% endwith %}
   </form>
 
-  <div class="flex justify-center mb-6">
+  <!-- Add Perfume Button -->
+  <div class="flex justify-center mb-10">
     <button 
       id="add-perfume-btn"
       type="button"
-      class="bg-gray-800 text-yellow-400 px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+      class="add-perfume-btn text-[var(--gold)] px-8 py-3 rounded-xl font-bold transition flex items-center gap-2"
     >
-      + Add Another Perfume
+      <span class="text-xl">+</span>
+      <span>Add Another Perfume</span>
     </button>
   </div>
 
-  <div id="compare-results">
+  <!-- Comparison Results -->
+  <div id="compare-results" class="results-container">
     {% include 'perfumes/partials/compare_table.html' %}
   </div>
 </div>
@@ -92,22 +307,48 @@
       const url = form.getAttribute('hx-get') + '?' + params.toString();
       htmx.ajax('GET', url, { target: '#compare-results', swap: 'innerHTML' });
 
-      // 🧭 Update URL dynamically without reload (for sharing links)
       const newUrl = window.location.pathname + '?' + params.toString();
       window.history.replaceState({}, '', newUrl);
     } else {
       document.getElementById('compare-results').innerHTML =
-        '<p class="text-center text-gray-400 p-8">Select at least one perfume to start the comparison.</p>';
+        '<div class="text-center py-16"><span class="text-8xl opacity-20 block mb-4">⚖️</span><p class="text-gray-400 text-lg">Select at least one perfume to start the comparison</p></div>';
     }
+  }
+
+  function removeInput(btn) {
+    const wrapper = btn.closest('.perfume-input');
+    const form = document.getElementById('compare-form');
+    const inputs = form.querySelectorAll('.perfume-input');
+    
+    // Don't allow removing if only 2 inputs remain
+    if (inputs.length <= 2) {
+      // Just clear the input instead
+      const input = wrapper.querySelector('input');
+      input.value = '';
+      delete input.dataset.id;
+      input.classList.remove('has-selection');
+      btn.classList.add('hidden');
+      updateComparisonTable();
+      return;
+    }
+    
+    wrapper.remove();
+    updateComparisonTable();
   }
 
   // Handle perfume suggestion clicks
   document.addEventListener('click', function (e) {
     const suggestionItem = e.target.closest('.suggestion-item');
     if (suggestionItem) {
-      const input = suggestionItem.closest('.relative').querySelector('input');
+      const wrapper = suggestionItem.closest('.perfume-input');
+      const input = wrapper.querySelector('input');
       input.value = suggestionItem.dataset.label;
       input.dataset.id = suggestionItem.dataset.id;
+      input.classList.add('has-selection');
+
+      // Show remove button
+      const removeBtn = wrapper.querySelector('.remove-input-btn');
+      if (removeBtn) removeBtn.classList.remove('hidden');
 
       const suggestionDivId = input.getAttribute('hx-target').substring(1);
       const suggestionsDiv = document.getElementById(suggestionDivId);
@@ -120,7 +361,7 @@
   // Hide dropdowns when clicking outside
   document.addEventListener('click', function (e) {
     document.querySelectorAll('[id^="suggestions-"]').forEach(el => {
-      const input = el.previousElementSibling;
+      const input = el.previousElementSibling?.querySelector('input');
       if (!el.contains(e.target) && (!input || !input.contains(e.target))) {
         el.classList.add('hidden');
       }
@@ -140,26 +381,35 @@
     const count = form.querySelectorAll('.perfume-input').length;
 
     if (count >= 4) {
-      alert('You can only compare up to 4 perfumes.');
+      alert('You can only compare up to 4 perfumes at once.');
       return;
     }
 
     const newCounter = count + 1;
     const newInputHTML = `
-      <div class="relative perfume-input">
-        <input
-          type="text"
-          name="q" 
-          placeholder="Search perfume ${newCounter}"
-          class="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 w-52 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition"
-          hx-get="{% url 'perfume_suggestions' %}"
-          hx-trigger="keyup changed delay:300ms"
-          hx-target="#suggestions-${newCounter}"
-          autocomplete="off"
-        >
+      <div class="search-input-wrapper perfume-input">
+        <div class="relative">
+          <input
+            type="text"
+            name="q" 
+            placeholder="🔍 Search perfume ${newCounter}"
+            class="search-input text-white rounded-xl px-4 py-3 w-64 transition"
+            hx-get="{% url 'perfume_suggestions' %}"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#suggestions-${newCounter}"
+            autocomplete="off"
+          >
+          <button 
+            type="button"
+            class="remove-input-btn absolute -top-2 -right-2 w-6 h-6 rounded-full text-white text-xs font-bold shadow-lg hidden"
+            onclick="removeInput(this)"
+          >
+            ✕
+          </button>
+        </div>
         <div 
           id="suggestions-${newCounter}" 
-          class="absolute left-0 top-full bg-gray-800 rounded-lg shadow-lg w-52 z-20 hidden"
+          class="suggestions-dropdown absolute left-0 top-full mt-2 rounded-xl shadow-2xl w-64 z-20 hidden"
         ></div>
       </div>
     `;
@@ -170,6 +420,16 @@
 
     if (window.htmx) {
       window.htmx.process(newInput);
+    }
+  });
+
+  // Show remove button when input has value
+  document.addEventListener('input', function(e) {
+    if (e.target.matches('.search-input')) {
+      const removeBtn = e.target.parentElement.querySelector('.remove-input-btn');
+      if (removeBtn && e.target.value) {
+        removeBtn.classList.remove('hidden');
+      }
     }
   });
 </script>
