@@ -1,0 +1,58 @@
+{% if perfumes %}
+<div class="overflow-x-auto bg-gray-900 rounded-xl p-4 shadow-lg" id="compare-table">
+  
+  <div class="hidden md:block absolute top-0 right-0 p-2 text-gray-500 text-sm">
+    Scroll left/right to view more items →
+  </div>
+
+  <div class="flex justify-end pr-2 text-yellow-400 text-sm font-medium mb-2 md:hidden">
+    &leftarrow; Swipe/Scroll to see more &rightarrow;
+  </div>
+  
+  <table class="min-w-full text-left text-gray-300 border-collapse">
+    <thead class="border-b border-gray-700 text-yellow-400">
+      <tr>
+        <th class="p-3">Feature</th>
+        {% for perfume in perfumes %}
+          <th class="p-3 text-center relative">
+            <button 
+              hx-get="{% url 'compare_perfumes' %}?{% for p in perfumes %}{% if p.id != perfume.id %}perfumes={{ p.id }}&{% endif %}{% endfor %}"
+              hx-target="#compare-results"
+              hx-swap="innerHTML"
+              class="absolute top-1 right-1 text-gray-500 hover:text-red-500 transition"
+              title="Remove {{ perfume.name }}"
+            >
+              ✖
+            </button>
+            <div class="flex flex-col items-center">
+              {% if perfume.image %}
+                <img src="{{ perfume.image.url }}" class="w-24 h-24 object-cover rounded-lg mb-2 border border-gray-700">
+              {% elif perfume.image_url %}
+                <img src="{{ perfume.image_url }}" class="w-24 h-24 object-cover rounded-lg mb-2 border border-gray-700">
+              {% else %}
+                <div class="w-24 h-24 bg-gray-800 flex items-center justify-center text-gray-500 rounded-lg mb-2">No Image</div>
+              {% endif %}
+              <span class="font-semibold text-white text-sm">{{ perfume.name }}</span>
+              <span class="text-xs text-gray-400">{{ perfume.brand }}</span>
+            </div>
+          </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-800">
+      <tr><td class="p-3 font-medium">Country</td>{% for p in perfumes %}<td class="p-3">{{ p.country|default:"–" }}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Gender</td>{% for p in perfumes %}<td class="p-3">{{ p.gender|default:"–" }}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Year</td>{% for p in perfumes %}<td class="p-3">{{ p.year|default:"–" }}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Rating</td>{% for p in perfumes %}<td class="p-3">⭐ {{ p.rating_value|default:"–" }} ({{ p.rating_count|default:"0" }})</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Top Notes</td>{% for p in perfumes %}<td class="p-3">{{ p.top_notes|default:"–" }}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Middle Notes</td>{% for p in perfumes %}<td class="p-3">{{ p.middle_notes|default:"–" }}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Base Notes</td>{% for p in perfumes %}<td class="p-3">{{ p.base_notes|default:"–" }}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Main Accords</td>{% for p in perfumes %}<td class="p-3">{{ p.mainaccord1 }}, {{ p.mainaccord2 }}, {{ p.mainaccord3 }}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Perfumer(s)</td>{% for p in perfumes %}<td class="p-3">{{ p.perfumer1 }}{% if p.perfumer2 %}, {{ p.perfumer2 }}{% endif %}</td>{% endfor %}</tr>
+      <tr><td class="p-3 font-medium">Description</td>{% for p in perfumes %}<td class="p-3 text-sm leading-relaxed">{{ p.description|truncatewords:40|default:"No description" }}</td>{% endfor %}</tr>
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-center text-gray-400 mt-6">Select up to 4 perfumes above to compare them.</p>
+{% endif %}

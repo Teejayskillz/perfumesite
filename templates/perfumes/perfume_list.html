@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h1 class="text-2xl font-bold mb-4 text-center text-yellow-400">All Perfumes</h1>
+
+  <form
+    id="filter-form"
+    hx-get="{% url 'filter_perfumes' %}"
+    hx-target="#perfume-list"
+    hx-trigger="change from:select, keyup changed delay:400ms from:input"
+    class="bg-gray-800 text-white p-3 rounded-lg flex flex-wrap gap-3 items-center justify-center mb-6"
+  >
+    <select name="gender" class="bg-gray-900 p-2 rounded border border-gray-700">
+      <option value="">All Genders</option>
+      <option value="Men">Men</option>
+      <option value="Women">Women</option>
+      <option value="Unisex">Unisex</option>
+    </select>
+
+    <select name="country" class="bg-gray-900 p-2 rounded border border-gray-700">
+      <option value="">All Countries</option>
+      <option value="France">France</option>
+      <option value="USA">USA</option>
+      <option value="Italy">Italy</option>
+      <option value="UAE">UAE</option>
+    </select>
+
+    <input 
+      type="text" 
+      name="brand" 
+      placeholder="Search"
+      class="bg-gray-900 p-2 rounded border border-gray-700"
+    />
+
+    <select name="accord" class="bg-gray-900 p-2 rounded border border-gray-700">
+      <option value="">All Accords</option>
+      <option value="Woody">Woody</option>
+      <option value="Floral">Floral</option>
+      <option value="Fresh">Fresh</option>
+      <option value="Amber">Amber</option>
+      <option value="Musk">Musk</option>
+    </select>
+
+    <select name="rating" class="bg-gray-900 p-2 rounded border border-gray-700">
+      <option value="">Any Rating</option>
+      <option value="4">4★ & Up</option>
+      <option value="3">3★ & Up</option>
+      <option value="2">2★ & Up</option>
+    </select>
+  </form>
+
+  <div id="perfume-list">
+    <form id="compareForm" method="get" action="{% url 'compare_perfumes' %}">
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {% for perfume in perfumes %}
+          {% include 'perfumes/_perfume_card.html' %} 
+        {% empty %}
+          <p class="text-gray-500 text-center py-8 col-span-full">No perfumes found for these filters.</p>
+        {% endfor %}
+      </div>
+
+      <div class="fixed bottom-5 right-5">
+        <button 
+          type="submit" 
+          id="compareButton" 
+          class="bg-red-600 text-white px-5 py-2 rounded-full shadow-lg hover:bg-red-700 transition hidden">
+          Compare Selected (<span id="compareCount">0</span>)
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // 💡 Compare Button Logic
+  document.addEventListener("change", (e) => {
+    if (!e.target.matches('input[name="perfumes"]')) return;
+
+    const selected = document.querySelectorAll('input[name="perfumes"]:checked').length;
+    const compareBtn = document.getElementById('compareButton');
+    const compareCount = document.getElementById('compareCount');
+
+    compareCount.textContent = selected;
+    compareBtn.classList.toggle('hidden', selected === 0);
+
+    if (selected > 4) {
+      alert("You can only compare up to 4 perfumes at once.");
+      e.target.checked = false;
+      compareCount.textContent = document.querySelectorAll('input[name="perfumes"]:checked').length;
+    }
+  });
+</script>
+{% endblock %}

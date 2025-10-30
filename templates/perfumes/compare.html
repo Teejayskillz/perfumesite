@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_tags %}
+<meta name="description" content="Use the Fragrance Compare tool on your site to view perfumes side-by-side. Compare notes, ratings, and perfumers for top brands.">
+<meta name="keywords" content="perfume comparison tool, compare scents, fragrance analysis, perfume notes comparison, {{ site_link|default:'FragranceSite' }}">
+<title>Compare Perfumes Side-by-Side | {{ site_link|default:'FragranceSite' }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="container py-6">
+  <h1 class="text-3xl font-bold mb-6 text-center text-yellow-400">Compare Perfumes</h1>
+
+  <form 
+    id="compare-form"
+    hx-get="{% url 'compare_perfumes' %}"
+    hx-target="#compare-results"
+    hx-swap="innerHTML"
+    class="flex flex-wrap items-center justify-center gap-3 mb-8"
+  >
+    {# Prefill selected perfumes if passed in URL #}
+    {% for perfume in perfumes %}
+      <div class="relative perfume-input">
+        <input
+          type="text"
+          name="q" 
+          placeholder="Selected: {{ perfume.name }}"
+          value="{{ perfume.name }} by {{ perfume.brand }}"
+          data-id="{{ perfume.id }}"
+          class="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 w-52 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition"
+          hx-get="{% url 'perfume_suggestions' %}"
+          hx-trigger="keyup changed delay:300ms"
+          hx-target="#suggestions-{{ forloop.counter }}"
+          autocomplete="off"
+        >
+        <div 
+          id="suggestions-{{ forloop.counter }}" 
+          class="absolute left-0 top-full bg-gray-800 rounded-lg shadow-lg w-52 z-20 hidden"
+        ></div>
+      </div>
+    {% endfor %}
+
+    {# Show remaining boxes (default 2 if none prefilled) #}
+    {% with remaining=2|add:"-perfumes.count" %}
+      {% for i in remaining|make_list %}
+        <div class="relative perfume-input">
+          <input
+            type="text"
+            name="q" 
+            placeholder="Search perfume {{ forloop.counter|add:perfumes.count }}"
+            class="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 w-52 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition"
+            hx-get="{% url 'perfume_suggestions' %}"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#suggestions-{{ forloop.counter|add:perfumes.count }}"
+            autocomplete="off"
+          >
+          <div 
+            id="suggestions-{{ forloop.counter|add:perfumes.count }}" 
+            class="absolute left-0 top-full bg-gray-800 rounded-lg shadow-lg w-52 z-20 hidden"
+          ></div>
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </form>
+
+  <div class="flex justify-center mb-6">
+    <button 
+      id="add-perfume-btn"
+      type="button"
+      class="bg-gray-800 text-yellow-400 px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+    >
+      + Add Another Perfume
+    </button>
+  </div>
+
+  <div id="compare-results">
+    {% include 'perfumes/partials/compare_table.html' %}
+  </div>
+</div>
+
+<script>
+  function updateComparisonTable() {
+    const form = document.querySelector('#compare-form');
+    const selected = [...form.querySelectorAll('input[data-id]')]
+      .map(el => el.dataset.id)
+      .filter(Boolean);
+
+    if (selected.length >= 1) {
+      const params = new URLSearchParams();
+      selected.forEach(id => params.append('perfumes', id));
+
+      const url = form.getAttribute('hx-get') + '?' + params.toString();
+      htmx.ajax('GET', url, { target: '#compare-results', swap: 'innerHTML' });
+
+      // 🧭 Update URL dynamically without reload (for sharing links)
+      const newUrl = window.location.pathname + '?' + params.toString();
+      window.history.replaceState({}, '', newUrl);
+    } else {
+      document.getElementById('compare-results').innerHTML =
+        '<p class="text-center text-gray-400 p-8">Select at least one perfume to start the comparison.</p>';
+    }
+  }
+
+  // Handle perfume suggestion clicks
+  document.addEventListener('click', function (e) {
+    const suggestionItem = e.target.closest('.suggestion-item');
+    if (suggestionItem) {
+      const input = suggestionItem.closest('.relative').querySelector('input');
+      input.value = suggestionItem.dataset.label;
+      input.dataset.id = suggestionItem.dataset.id;
+
+      const suggestionDivId = input.getAttribute('hx-target').substring(1);
+      const suggestionsDiv = document.getElementById(suggestionDivId);
+      if (suggestionsDiv) suggestionsDiv.classList.add('hidden');
+
+      updateComparisonTable();
+    }
+  });
+
+  // Hide dropdowns when clicking outside
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('[id^="suggestions-"]').forEach(el => {
+      const input = el.previousElementSibling;
+      if (!el.contains(e.target) && (!input || !input.contains(e.target))) {
+        el.classList.add('hidden');
+      }
+    });
+  });
+
+  document.body.addEventListener('htmx:afterSwap', function (e) {
+    if (e.target.id.startsWith('suggestions-')) {
+      e.target.classList.remove('hidden');
+    }
+  });
+
+  // Add new input dynamically
+  const addBtn = document.getElementById('add-perfume-btn');
+  addBtn.addEventListener('click', () => {
+    const form = document.getElementById('compare-form');
+    const count = form.querySelectorAll('.perfume-input').length;
+
+    if (count >= 4) {
+      alert('You can only compare up to 4 perfumes.');
+      return;
+    }
+
+    const newCounter = count + 1;
+    const newInputHTML = `
+      <div class="relative perfume-input">
+        <input
+          type="text"
+          name="q" 
+          placeholder="Search perfume ${newCounter}"
+          class="bg-gray-900 text-white border border-gray-700 rounded-lg px-3 py-2 w-52 focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 transition"
+          hx-get="{% url 'perfume_suggestions' %}"
+          hx-trigger="keyup changed delay:300ms"
+          hx-target="#suggestions-${newCounter}"
+          autocomplete="off"
+        >
+        <div 
+          id="suggestions-${newCounter}" 
+          class="absolute left-0 top-full bg-gray-800 rounded-lg shadow-lg w-52 z-20 hidden"
+        ></div>
+      </div>
+    `;
+    form.insertAdjacentHTML('beforeend', newInputHTML);
+
+    const allInputs = form.querySelectorAll('.perfume-input');
+    const newInput = allInputs[allInputs.length - 1];
+
+    if (window.htmx) {
+      window.htmx.process(newInput);
+    }
+  });
+</script>
+{% endblock %}

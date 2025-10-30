@@ -1,0 +1,16 @@
+<ul class="suggestions-list divide-y divide-gray-700">
+  {% if perfumes %}
+    {% for perfume in perfumes %}
+      <li 
+        class="suggestion-item px-3 py-2 cursor-pointer hover:bg-yellow-600 text-white transition"
+        data-id="{{ perfume.id }}"
+        data-label="{{ perfume.name }}"
+      >
+        <span class="block font-medium">{{ perfume.name }}</span>
+        <span class="text-xs text-gray-300">{{ perfume.brand }}</span>
+      </li>
+    {% endfor %}
+  {% else %}
+    <li class="px-3 py-2 text-gray-400 text-sm">No matches found</li>
+  {% endif %}
+</ul>

@@ -1,0 +1,36 @@
+<div class="relative bg-gray-900 rounded-xl shadow hover:shadow-lg transition p-2 group">
+
+  <input 
+    type="checkbox" 
+    name="perfumes" 
+    value="{{ perfume.id }}" 
+    id="perfume-{{ perfume.id }}"
+    class="absolute top-3 left-3 w-5 h-5 accent-red-500 rounded-md z-10 cursor-pointer"
+    onclick="event.stopPropagation()" 
+    onchange="this.blur()"
+  >
+
+  <label 
+    for="perfume-{{ perfume.id }}" 
+    class="absolute top-2 left-2 w-7 h-7 z-[5] cursor-pointer"
+    title="Select {{ perfume.name }} for comparison"
+  ></label>
+
+  <a href="{% url 'perfume_detail' pk=perfume.pk %}" class="block">
+    {% if perfume.image %}
+      <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}" class="w-full h-48 object-cover rounded-md mb-2">
+    {% elif perfume.image_url %}
+      <img src="{{ perfume.image_url }}" alt="{{ perfume.name }}" class="w-full h-48 object-cover rounded-md mb-2">
+    {% else %}
+      <div class="w-full h-48 bg-gray-800 flex items-center justify-center text-gray-500 rounded-md mb-2">
+        No Image
+      </div>
+    {% endif %}
+
+    <div class="pt-1">
+      <h2 class="text-lg font-semibold text-white truncate">{{ perfume.name }}</h2>
+      <p class="text-sm text-gray-400">{{ perfume.brand }}</p>
+      <p class="text-xs text-yellow-400">⭐ {{ perfume.rating_value|default:"–" }} ({{ perfume.rating_count|default:0 }})</p>
+    </div>
+  </a>
+</div>

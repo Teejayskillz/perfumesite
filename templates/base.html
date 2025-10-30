@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scentpedia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --gold: #d4af37;
+        }
+    </style>
+</head>
+<body class="bg-black text-white font-sans">
+    {% if messages %}
+  <div class="container mx-auto mt-4">
+    {% for message in messages %}
+      <div class="p-3 mb-2 text-white bg-green-600 rounded-lg">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+    <!-- Navbar -->
+    <nav class="w-full py-4 px-8 flex justify-between items-center bg-black/90 border-b border-[var(--gold)] sticky top-0 z-50">
+    <a href="/" class="text-2xl font-bold text-[var(--gold)]">Scentpedia</a>
+    <div class="flex space-x-6 text-sm">
+        <a href="{% url 'perfume_list' %}" class="hover:text-[var(--gold)] transition">Browse</a>
+        
+        <a href="{% url 'compare_perfumes' %}" class="hover:text-[var(--gold)] transition">Compare</a>
+        
+        <a href="#" class="hover:text-[var(--gold)] transition">About</a>
+        <a href="#" class="hover:text-[var(--gold)] transition">Contact</a>
+    </div>
+</nav>
+    <!-- Content Block -->
+    <main class="p-6">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-10 text-center py-6 border-t border-gray-700 text-gray-400 text-sm">
+        © {{ now|date:"Y" }} <span class="text-[var(--gold)] font-semibold">Scentpedia</span>. All rights reserved.
+    </footer>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+</body>
+</html>

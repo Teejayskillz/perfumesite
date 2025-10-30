@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="min-h-screen flex flex-col items-center justify-center text-center bg-gray-950 text-white">
+  <h1 class="text-5xl font-bold mb-4">Welcome to Scentpedia</h1>
+  <p class="text-gray-400 text-lg max-w-xl mb-8">
+    Discover and explore the world’s finest perfumes from around the globe.
+  </p>
+
+  <div class="flex space-x-4">
+    <a href="{% url 'perfume_list' %}" 
+       class="bg-red-600 px-6 py-3 rounded-xl text-white text-lg font-semibold hover:bg-red-700 transition">
+       Browse Perfumes
+    </a>
+  </div>
+</div>
+{% endblock %}

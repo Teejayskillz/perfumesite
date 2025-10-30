@@ -1,0 +1,19 @@
+{% for perfume in perfumes %}
+<a href="{% url 'perfume_detail' perfume.pk %}" class="block hover:bg-gray-800 transition duration-150 ease-in-out rounded-lg">
+  <div class="bg-gray-900 text-white p-4 rounded-lg mb-4 flex gap-4">
+    {% if perfume.image %}
+      <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}" class="w-20 h-20 object-cover rounded">
+    {% elif perfume.image_url %}
+      <img src="{{ perfume.image_url }}" alt="{{ perfume.name }}" class="w-20 h-20 object-cover rounded">
+    {% endif %}
+    <div>
+      <h2 class="font-bold text-lg">{{ perfume.name }}</h2>
+      <p class="text-gray-400">{{ perfume.brand }} • {{ perfume.country }}</p>
+      <p class="text-yellow-400">⭐ {{ perfume.rating_value|default:"–" }}</p>
+      <p class="text-gray-500 text-sm">{{ perfume.mainaccord1 }}, {{ perfume.mainaccord2 }}</p>
+    </div>
+  </div>
+</a>
+{% empty %}
+<p class="text-gray-500 text-center py-8">No perfumes found for these filters.</p>
+{% endfor %}
