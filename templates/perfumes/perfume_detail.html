@@ -51,6 +51,21 @@
     z-index: -1;
   }
 
+  /* --- BEGIN Mobile Image Adjustment --- */
+  .perfume-image-sticky-wrapper {
+    /* Default for larger screens */
+    position: sticky;
+    top: 6rem; /* Equivalent to Tailwind's top-24 (24 * 0.25rem = 6rem) */
+  }
+
+  @media (max-width: 1023px) { /* Adjust for mobile/small screens (lg: break point is 1024px) */
+    .perfume-image-sticky-wrapper {
+      /* Pushes the image up to only stick 1rem (4px) from the top */
+      top: 1rem; /* Adjust this value (e.g., 0.5rem, 1rem, 2rem) as needed */
+    }
+  }
+  /* --- END Mobile Image Adjustment --- */
+
   .gold-badge {
     background: linear-gradient(135deg, #d4af37, #f4e4b8);
     box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
@@ -163,17 +178,15 @@
 <div class="container max-w-6xl mx-auto py-8 px-4">
   <div class="detail-container bg-gradient-to-br from-gray-900 to-black rounded-3xl shadow-2xl p-6 md:p-10 border border-gray-800">
     
-    <!-- Main Content -->
     <div class="flex flex-col lg:flex-row gap-8 mb-10">
       
-      <!-- Image Section -->
       <div class="lg:w-2/5">
-        <div class="image-glow sticky top-24">
+        <div class="image-glow perfume-image-sticky-wrapper">
           {% if perfume.image %}
-            <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}" 
+            <img src="{{ perfume.image.url }}" alt="{{ perfume.name }} - {{ perfume.brand }} Fragrance Details" 
                  class="perfume-image-detail w-full rounded-2xl object-cover shadow-2xl">
           {% elif perfume.image_url %}
-            <img src="{{ perfume.image_url }}" alt="{{ perfume.name }}" 
+            <img src="{{ perfume.image_url }}" alt="{{ perfume.name }} - {{ perfume.brand }} Fragrance Details" 
                  class="perfume-image-detail w-full rounded-2xl object-cover shadow-2xl">
           {% else %}
             <div class="w-full bg-gradient-to-br from-gray-800 to-gray-900 h-96 flex flex-col items-center justify-center text-gray-500 rounded-2xl border-2 border-dashed border-gray-700">
@@ -184,10 +197,8 @@
         </div>
       </div>
 
-      <!-- Details Section -->
       <div class="lg:w-3/5 space-y-6">
         
-        <!-- Header -->
         <div>
           <div class="flex items-center gap-3 mb-3">
             <span class="gold-badge text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wider">
@@ -207,7 +218,6 @@
             {% endif %}
           </div>
           
-          <!-- Rating -->
           <div class="flex items-center gap-2 mb-6">
             <span class="rating-stars text-2xl">★★★★★</span>
             <span class="text-[var(--gold)] font-bold text-xl">{{ perfume.rating_value|default:"–" }}</span>
@@ -217,12 +227,10 @@
 
         <div class="section-divider"></div>
 
-        <!-- Description -->
         <div class="text-gray-300 leading-relaxed text-lg">
           {{ perfume.description|linebreaks }}
         </div>
 
-        <!-- Compare Button -->
         <div>
           <a href="{% url 'compare_perfumes' %}?perfumes={{ perfume.id }}" 
              class="luxury-button inline-flex items-center gap-3 text-black font-bold py-4 px-8 rounded-xl transition duration-300 text-lg">
@@ -233,7 +241,6 @@
 
         <div class="section-divider"></div>
 
-        <!-- Fragrance Notes -->
         <div class="space-y-4">
           <h2 class="text-2xl font-bold text-[var(--gold)] mb-4">Fragrance Profile</h2>
           
@@ -266,7 +273,6 @@
 
     <div class="section-divider my-10"></div>
 
-    <!-- Additional Information -->
     <div class="grid md:grid-cols-2 gap-6 mb-10">
       <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700">
         <h3 class="text-[var(--gold)] font-bold text-lg mb-4">Perfumer(s)</h3>
@@ -307,7 +313,6 @@
       </div>
     </div>
 
-    <!-- Share Buttons -->
     <div class="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-6 mb-10 border border-gray-700">
       <h3 class="text-white font-bold text-xl mb-4 text-center">Share This Fragrance</h3>
       <div class="flex flex-wrap justify-center gap-4">
@@ -339,19 +344,19 @@
       </div>
     </div>
 
-    <!-- Similar Perfumes -->
     {% if similar_perfumes %}
       <div class="mb-10">
         <h2 class="text-3xl font-bold text-[var(--gold)] mb-6 text-center">You Might Also Love</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
           {% for p in similar_perfumes %}
             <a href="{% url 'perfume_detail' pk=p.pk %}" 
-               class="similar-perfume-card block bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg hover:shadow-2xl transition-all p-4">
+               class="similar-perfume-card block bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl shadow-lg hover:shadow-2xl transition-all p-4"
+               aria-label="View details for {{ p.name }} by {{ p.brand }}">
               {% if p.image %}
-                <img src="{{ p.image.url }}" alt="{{ p.name }}" 
+                <img src="{{ p.image.url }}" alt="Image of {{ p.name }} perfume bottle" 
                      class="w-full h-40 object-cover rounded-lg mb-3 shadow-md">
               {% elif p.image_url %}
-                <img src="{{ p.image_url }}" alt="{{ p.name }}" 
+                <img src="{{ p.image_url }}" alt="Image of {{ p.name }} perfume bottle" 
                      class="w-full h-40 object-cover rounded-lg mb-3 shadow-md">
               {% else %}
                 <div class="w-full h-40 bg-gray-700 rounded-lg mb-3 flex items-center justify-center">
@@ -368,11 +373,9 @@
 
     <div class="section-divider my-10"></div>
 
-    <!-- Reviews Section -->
     <div class="bg-gradient-to-br from-gray-900/50 to-black/50 rounded-2xl p-6 md:p-8 border border-gray-800">
       <h2 class="text-3xl font-bold text-[var(--gold)] mb-6">Customer Reviews</h2>
 
-      <!-- Review Form -->
       <form method="post" class="mb-8 bg-gray-800/50 rounded-xl p-6 border border-gray-700">
         {% csrf_token %}
         <div class="space-y-4">
@@ -384,7 +387,6 @@
         </button>
       </form>
 
-      <!-- Reviews List -->
       {% if reviews %}
         <div class="space-y-4">
           {% for review in reviews %}
@@ -408,4 +410,8 @@
   </div>
 </div>
 
+<div hidden>
+  <p>Perfume details for {{ perfume.name }} by {{ perfume.brand }}. Find reviews, notes ({{ perfume.top_notes }}, {{ perfume.middle_notes }}, {{ perfume.base_notes }}), and similar fragrances for {{ perfume.name }}.</p>
+  <a href="{% url 'perfume_detail' pk=perfume.pk %}" title="Download details for {{ perfume.name }}">Download details for {{ perfume.name }}</a>
+</div>
 {% endblock %}
