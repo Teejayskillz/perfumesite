@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'perfumes',
     'django_htmx',
+    'page',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [

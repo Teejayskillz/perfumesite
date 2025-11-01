@@ -7,6 +7,7 @@ from django.conf.urls.static import static # Import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('perfumes.urls')),
+    path('', include('page.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
