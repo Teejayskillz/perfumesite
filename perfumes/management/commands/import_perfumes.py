@@ -36,7 +36,7 @@ class Command(BaseCommand):
 
         imported = 0
         row_count = 0
-        start_line = 2429  # 👈 Start importing from this line
+        start_line = 2768  # 👈 Start importing from this line
 
         with open(file_path, mode="r", encoding="utf-8", errors="ignore") as csvfile:
             reader = csv.DictReader(csvfile, delimiter=";")
