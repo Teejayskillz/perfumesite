@@ -44,8 +44,7 @@ class Command(BaseCommand):
             for row in reader:
                 row_count += 1
                 try:
-                    raw_name = (row.get("Perfume") or "").strip()
-                    name = raw_name.replace('-', ' ').replace('_', ' ').title()
+                    name = (row.get("Perfume") or "").strip()
                     brand = (row.get("Brand") or "").strip()
                     url = (row.get("url") or "").strip()
 
