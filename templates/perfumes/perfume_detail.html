@@ -232,6 +232,12 @@
         </div>
 
         <div>
+          <a href="https://www.amazon.com/s?k={{ perfume.brand|urlencode }}+{{ perfume.name|urlencode }}&linkCode=ll2&tag=nzd01-20&linkId=09effabdfb2f0ca9a980db61e52ba254&language=en_US&ref_=as_li_ss_tl" 
+               target="_blank" rel="noopener noreferrer" 
+               class="luxury-button inline-flex items-center justify-center gap-3 text-black font-bold py-4 px-8 rounded-xl transition duration-300 text-lg flex-1 sm:flex-grow-0">
+              <span class="text-xl">🛍️</span>
+              Get on Amazon
+            </a>
           <a href="{% url 'compare_perfumes' %}?perfumes={{ perfume.id }}" 
              class="luxury-button inline-flex items-center gap-3 text-black font-bold py-4 px-8 rounded-xl transition duration-300 text-lg">
             <span class="text-xl">⚖️</span>
