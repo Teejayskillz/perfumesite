@@ -166,16 +166,19 @@
     line-height: 1.6;
   }
   
+  /* Styled to fit nicely in the header column */
   .seo-link-btn {
       background: #d4af37;
       color: #000;
       font-weight: bold;
       transition: all 0.3s ease;
+      font-size: 0.75rem; /* text-xs */
+      padding: 0.5rem 0.75rem; /* px-3 py-2 */
   }
 
   .seo-link-btn:hover {
       background: #f4e4b8;
-      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.5);
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
       transform: translateY(-2px);
   }
 </style>
@@ -245,6 +248,19 @@
                 <span class="font-bold text-white text-base block">{{ perfume.name }}</span>
                 <span class="text-sm text-[var(--gold)]">{{ perfume.brand }}</span>
               </div>
+
+              <!-- NEW INDIVIDUAL AMAZON BUTTON -->
+              <div class="mt-4">
+                {% with perfume_query=perfume.name|urlencode %}
+                <a href="https://www.amazon.com/s?k={{ perfume_query }}&linkCode=ll2&tag=nzd01-20&linkId=09effabdfb2f0ca9a980db61e52ba254&language=en_US&ref_=as_li_ss_tl" 
+                   target="_blank" rel="noopener noreferrer" 
+                   class="seo-link-btn inline-flex items-center justify-center rounded-full shadow-lg hover:shadow-2xl transition duration-300 transform hover:scale-[1.01]">
+                   <span class="text-base mr-1">🛒</span> Get {{ perfume.name }} Now!
+                </a>
+                {% endwith %}
+              </div>
+              <!-- END NEW INDIVIDUAL AMAZON BUTTON -->
+
             </div>
           </th>
         {% endfor %}
@@ -419,34 +435,6 @@
     </tbody>
   </table>
   
-  
-  {% if perfumes %}
-    <div class="mt-8 pt-6 border-t border-gray-700 text-center">
-      
-      {% comment %} 
-        Build the Amazon search query string (k) by joining all perfume names using 
-        the add filter multiple times for maximum Django template compatibility (since list filters are limited).
-      {% endcomment %}
-      
-      {% with p0=perfumes.0.name|default:'' p1=perfumes.1.name|default:'' p2=perfumes.2.name|default:'' p3=perfumes.3.name|default:'' %}
-        
-        {# Combine up to 4 names, separating by a space #}
-        {% with combined_names=p0|add:' '|add:p1|add:' '|add:p2|add:' '|add:p3 %}
-          
-          {# The cut filters attempt to clean up extra spaces if some perfume slots are empty #}
-          {% with clean_query=combined_names|cut:'  '|cut:' '|cut:'  ' %} 
-            
-            <a href="https://www.amazon.com/s?k={{ clean_query|urlencode }}&linkCode=ll2&tag=nzd01-20&linkId=09effabdfb2f0ca9a980db61e52ba254&language=en_US&ref_=as_li_ss_tl" 
-               target="_blank" rel="noopener noreferrer" 
-               class="seo-link-btn inline-flex items-center justify-center text-lg md:text-xl px-10 py-4 rounded-full shadow-lg hover:shadow-2xl transition duration-300 transform hover:scale-[1.01]">
-               <span>🛒</span> Get these items on Amazon now! Click Here →
-            </a>
-          {% endwith %}
-        {% endwith %}
-      {% endwith %}
-
-    </div>
-  {% endif %}
 
 </div>
 
