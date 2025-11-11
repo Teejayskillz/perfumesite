@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ScentbaseX</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-W2BZNR5K0Q"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-W2BZNR5K0Q"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -259,8 +258,8 @@
         {% for message in messages %}
         <div class="message-notification glass-effect p-4 mb-3 text-white rounded-lg border border-[var(--gold)]">
             <div class="flex items-center space-x-3">
-                <svg class="w-5 h-5 text-[var(--gold)]" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                <svg class="w-5 h-5 text-[var(--gold)]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
                 </svg>
                 <span class="flex-1">{{ message }}</span>
             </div>
@@ -269,32 +268,42 @@
     </div>
     {% endif %}
 
-    <!-- Premium Navbar -->
     <nav class="nav-container w-full py-4 px-6 md:px-12 sticky top-0 z-40 fade-in">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <!-- Logo -->
             <a href="/" class="logo-container hover-glow">
-                <span class="logo-icon text-2xl">✦</span>
+                <svg class="w-6 h-6 inline-block text-[var(--gold)] logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9.032 2.227C10.51 1.243 12 1.5 12 1.5s1.49-.257 2.968.727l.033.021 6.83 4.498A3 3 0 0122.5 9.07v.649c0 1.054-.537 2.045-1.488 2.533l-.01.005-5.912 3.072A2.992 2.992 0 0012 16.5c-1.077 0-2.096-.49-2.78-1.325l-.013-.016-5.908-3.076A2.992 2.992 0 011.5 9.719v-.65c0-1.053.538-2.044 1.49-2.532l.02-.014 6.824-4.502zM12 13.5a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                </svg>
                 <span class="text-2xl md:text-3xl logo-text">ScentbaseX</span>
             </a>
 
-            <!-- Desktop Navigation -->
             <div class="desktop-nav hidden md:flex space-x-4">
-                <a href="{% url 'perfume_list' %}" class="nav-link-premium text-gray-300 hover:text-white">
-                    <span class="mr-2">🔍</span>Search
+                <a href="{% url 'perfume_list' %}" class="nav-link-premium text-gray-300 hover:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    Search
                 </a>
-                <a href="{% url 'compare_perfumes' %}" class="nav-link-premium text-gray-300 hover:text-white">
-                    <span class="mr-2">⚖️</span>Compare
+                <a href="{% url 'compare_perfumes' %}" class="nav-link-premium text-gray-300 hover:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h1.5m7.5 1.5h-.75V8.25m0 0H7.5v.75m4.5 3h1.5m-.75 4.5V18m0 0h-.75m.75 0h.75m-4.5 0h1.5m-.75 4.5V18m0 0h-.75m.75 0h.75M9 7.5v-.75a2.25 2.25 0 012.25-2.25h.5a2.25 2.25 0 012.25 2.25v.75M12 6v6m6-6v6" />
+                    </svg>
+                    Compare
                 </a>
-                <a href="{% url 'page_detail' slug='about' %}"class="nav-link-premium text-gray-300 hover:text-white">
-                    <span class="mr-2">ℹ️</span>About
+                <a href="{% url 'page_detail' slug='about' %}"class="nav-link-premium text-gray-300 hover:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l-.75.75m0 0L9 14.25M12 18H8.25m10.5-3.75h.008v.008h-.008v-.008zM12 12.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
+                    </svg>
+                    About
                 </a>
-                <a href="{% url 'page_detail' slug='contact' %}" class="nav-link-premium text-gray-300 hover:text-white">
-                    <span class="mr-2">✉️</span>Contact
+                <a href="{% url 'page_detail' slug='contact' %}" class="nav-link-premium text-gray-300 hover:text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a1.5 1.5 0 01-1.5 1.5h-15a1.5 1.5 0 01-1.5-1.5V6.75m18 0l-7.5 5.625-7.5-5.625M21.75 6.75h-18" />
+                    </svg>
+                    Contact
                 </a>
             </div>
 
-            <!-- Mobile Menu Button -->
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
                 <svg class="w-6 h-6 text-[var(--gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -302,29 +311,38 @@
             </button>
         </div>
 
-        <!-- Mobile Navigation -->
         <div class="mobile-nav" id="mobileMenu">
-            <a href="{% url 'perfume_list' %}" class="text-gray-300 hover:text-white">
-                <span class="mr-2">🔍</span>Browse
+            <a href="{% url 'perfume_list' %}" class="text-gray-300 hover:text-white flex items-center">
+                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                </svg>
+                Browse
             </a>
-            <a href="{% url 'compare_perfumes' %}" class="text-gray-300 hover:text-white">
-                <span class="mr-2">⚖️</span>Compare
+            <a href="{% url 'compare_perfumes' %}" class="text-gray-300 hover:text-white flex items-center">
+                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5h1.5m7.5 1.5h-.75V8.25m0 0H7.5v.75m4.5 3h1.5m-.75 4.5V18m0 0h-.75m.75 0h.75m-4.5 0h1.5m-.75 4.5V18m0 0h-.75m.75 0h.75M9 7.5v-.75a2.25 2.25 0 012.25-2.25h.5a2.25 2.25 0 012.25 2.25v.75M12 6v6m6-6v6" />
+                </svg>
+                Compare
             </a>
-            <a href="{% url 'page_detail' slug='about' %}" class="text-gray-300 hover:text-white">
-                <span class="mr-2">ℹ️</span>About
+            <a href="{% url 'page_detail' slug='about' %}" class="text-gray-300 hover:text-white flex items-center">
+                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l-.75.75m0 0L9 14.25M12 18H8.25m10.5-3.75h.008v.008h-.008v-.008zM12 12.75a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
+                </svg>
+                About
             </a>
-            <a href="{% url 'page_detail' slug='contact' %}" class="text-gray-300 hover:text-white">
-                <span class="mr-2">✉️</span>Contact
+            <a href="{% url 'page_detail' slug='contact' %}" class="text-gray-300 hover:text-white flex items-center">
+                <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a1.5 1.5 0 01-1.5 1.5h-15a1.5 1.5 0 01-1.5-1.5V6.75m18 0l-7.5 5.625-7.5-5.625M21.75 6.75h-18" />
+                </svg>
+                Contact
             </a>
         </div>
     </nav>
 
-    <!-- Page Content -->
     <main class="flex-grow p-6 fade-in-up">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
     <footer class="luxury-border mt-auto text-center py-8 border-t border-gray-800 text-gray-400 text-sm">
         <div class="space-y-2">
             <p class="text-base">
@@ -352,7 +370,8 @@
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('mobileMenu');
             const btn = document.querySelector('.mobile-menu-btn');
-            if (menu && !menu.contains(event.target) && !btn.contains(event.target)) {
+            // Check if the click is outside the menu AND outside the button
+            if (menu && !menu.contains(event.target) && !btn.contains(event.target) && menu.classList.contains('active')) {
                 menu.classList.remove('active');
             }
         });
