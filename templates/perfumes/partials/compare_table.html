@@ -20,51 +20,46 @@
     50% { transform: translateY(-5px); }
   }
 
-  /* Slide-up animation for mobile popup */
-  @keyframes popupSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   /* --- MOBILE RESPONSIVE FIXES START HERE --- */
   .compare-table-container {
     background: linear-gradient(135deg, rgba(212, 175, 55, 0.03), rgba(0, 0, 0, 0.9));
     border: 1px solid rgba(212, 175, 55, 0.2);
     animation: fadeIn 0.6s ease-out;
-    position: relative;
-    -webkit-overflow-scrolling: touch;
+    position: relative; /* Essential for sticky element */
+    -webkit-overflow-scrolling: touch; /* Improved scroll physics on iOS */
   }
 
+  /* Target the table within the container to ensure it maintains width */
   .compare-table-container table {
-    min-width: fit-content;
+    min-width: fit-content; /* Ensure table honors the min-width of its children columns */
   }
 
+  /* Makes the first column (Features) stick to the left when scrolling horizontally */
   .feature-label {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(0, 0, 0, 0.5));
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(0, 0, 0, 0.5)); /* Solid background for overlay */
     color: #d4af37;
     font-weight: 700;
     position: sticky;
     left: 0;
-    z-index: 20;
-    border-right: 1px solid rgba(212, 175, 55, 0.2);
+    z-index: 20; /* Higher Z-index to ensure it is always on top */
+    border-right: 1px solid rgba(212, 175, 55, 0.2); /* Visual separation */
   }
 
+  /* Sticky Corner Radius Fixes - Removed classes from HTML and defined here for clean sticky behavior */
   .table-header .feature-label {
-    border-top-left-radius: 0.75rem;
+    border-top-left-radius: 0.75rem; /* rounded-tl-xl */
   }
 
   tbody tr:last-child .feature-label {
-    border-bottom-left-radius: 0.75rem;
+    border-bottom-left-radius: 0.75rem; /* rounded-bl-xl */
   }
+  /* --- MOBILE RESPONSIVE FIXES END HERE --- */
+
 
   .perfume-column {
-    min-width: 250px !important;
+    /* *** WIDER MOBILE COLUMN CHANGE APPLIED HERE (250px) *** */
+    min-width: 250px !important; 
+    /* ****************************************************** */
     animation: slideInRight 0.5s ease-out;
     animation-fill-mode: both;
   }
@@ -147,6 +142,7 @@
     animation: fadeIn 0.6s ease-out;
   }
 
+  /* Custom scrollbar */
   .compare-table-container::-webkit-scrollbar {
     height: 10px;
   }
@@ -169,67 +165,34 @@
     max-width: 250px;
     line-height: 1.6;
   }
-
+  
+  /* Styled to fit nicely in the header column */
   .seo-link-btn {
-    background: #d4af37;
-    color: #000;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    font-size: 0.75rem;
-    padding: 0.5rem 0.75rem;
+      background: #d4af37;
+      color: #000;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      font-size: 0.75rem; /* text-xs */
+      padding: 0.5rem 0.75rem; /* px-3 py-2 */
   }
 
   .seo-link-btn:hover {
-    background: #f4e4b8;
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
-    transform: translateY(-2px);
-  }
-
-  /* --- MOBILE POPUP DESIGN --- */
-  @media (max-width: 768px) {
-    .compare-table-container.mobile-popup {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #111;
-      border-top-left-radius: 1.25rem;
-      border-top-right-radius: 1.25rem;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: popupSlideUp 0.4s ease-out;
-      z-index: 9999;
-    }
-
-    .compare-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 9998;
-    }
+      background: #f4e4b8;
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
+      transform: translateY(-2px);
   }
 </style>
 
-<!-- Floating button for mobile -->
-<button id="openComparePopup"
-  class="md:hidden fixed bottom-6 right-6 bg-[var(--gold)] text-black font-semibold py-3 px-5 rounded-full shadow-2xl animate-bounce z-50">
-  📊 Compare
-</button>
+<div style="display: none;">
+  <meta name="keywords" content="perfume comparison, best fragrance, {{ perfumes|join:', '|truncatewords:30 }}, notes comparison, accords, perfume rating">
+  <meta name="description" content="Detailed side-by-side comparison of {{ perfumes|length }} perfumes: {{ perfumes|join:', '|truncatewords:40 }}. Compare notes, accords, ratings, and more to find your perfect scent.">
+  <link rel="canonical" href="[YOUR_SITE_ROOT_URL]/compare/">
+</div>
 
-<!-- Popup overlay (hidden by default) -->
-<div id="compareOverlay" class="hidden compare-overlay md:hidden"></div>
 
-<!-- Mobile/desktop combined container -->
-<div id="compareTableWrapper" class="compare-table-container overflow-x-auto rounded-2xl p-6 shadow-2xl relative">
-  <!-- Close button for popup (mobile only) -->
-  <button id="closeComparePopup"
-    class="hidden md:hidden absolute top-3 right-3 bg-red-600 text-white text-lg font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg z-20">
-    ✕
-  </button>
-
-  <!-- === Your Existing Table Content (Unchanged) === -->
-  {% if perfumes %}
+{% if perfumes %}
+<div class="compare-table-container overflow-x-auto rounded-2xl p-6 shadow-2xl relative" id="compare-table">
+  
   <div class="scroll-indicator hidden md:flex absolute top-4 right-4 items-center gap-2 px-4 py-2 rounded-full text-xs text-[var(--gold)]">
     <span>Scroll to view more</span>
     <span class="text-lg">→</span>
@@ -241,49 +204,248 @@
         <span>**Swipe to see more**</span>
         <span class="text-lg">→</span>
     </div>
-    <span class="mt-1 text-xs font-normal text-gray-400">(For best experience, **tilt your phone** 🔄)</span>
+    <span class="mt-1 text-xs font-normal text-gray-400">
+        (For best experience, **tilt your phone** 🔄)
+    </span>
   </div>
-
-  <!-- Your table starts -->
+  
   <table class="w-full text-left text-gray-300 border-collapse">
-    <!-- keep your entire <thead> and <tbody> here -->
-    {{ block.super }}
+    <thead class="table-header">
+      <tr>
+        <th class="feature-label p-4"> 
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📊</span>
+            <span>Features</span>
+          </div>
+        </th>
+        {% for perfume in perfumes %}
+          <th class="perfume-column p-4 text-center relative min-w-[250px]">
+            <button 
+              hx-get="{% url 'compare_perfumes' %}?{% for p in perfumes %}{% if p.id != perfume.id %}perfumes={{ p.id }}&{% endif %}{% endfor %}"
+              hx-target="#compare-results"
+              hx-swap="innerHTML"
+              class="remove-btn absolute top-2 right-2 w-8 h-8 rounded-full text-white font-bold shadow-lg z-20 flex items-center justify-center"
+              title="Remove {{ perfume.name }}"
+            >
+              ✕
+            </button>
+            <div class="flex flex-col items-center gap-3">
+              {% if perfume.image %}
+                <img src="{{ perfume.image.url }}" 
+                     class="perfume-image-compare w-28 h-28 object-cover rounded-2xl shadow-xl" 
+                     alt="{{ perfume.name }}">
+              {% elif perfume.image_url %}
+                <img src="{{ perfume.image_url }}" 
+                     class="perfume-image-compare w-28 h-28 object-cover rounded-2xl shadow-xl"
+                     alt="{{ perfume.name }}">
+              {% else %}
+                <div class="perfume-image-compare w-28 h-28 bg-gradient-to-br from-gray-800 to-gray-900 flex flex-col items-center justify-center text-gray-500 rounded-2xl">
+                  <span class="text-3xl opacity-30">✦</span>
+                  <span class="text-xs mt-1">No Image</span>
+                </div>
+              {% endif %}
+              <div>
+                <span class="font-bold text-white text-base block">{{ perfume.name }}</span>
+                <span class="text-sm text-[var(--gold)]">{{ perfume.brand }}</span>
+              </div>
+
+              <!-- NEW INDIVIDUAL AMAZON BUTTON -->
+              <div class="mt-4">
+                {% with perfume_query=perfume.name|urlencode %}
+                <a href="https://www.amazon.com/s?k={{ perfume_query }}&linkCode=ll2&tag=nzd01-20&linkId=09effabdfb2f0ca9a980db61e52ba254&language=en_US&ref_=as_li_ss_tl" 
+                   target="_blank" rel="noopener noreferrer" 
+                   class="seo-link-btn inline-flex items-center justify-center rounded-full shadow-lg hover:shadow-2xl transition duration-300 transform hover:scale-[1.01]">
+                   <span class="text-base mr-1">🛒</span> Get {{ perfume.name }} Now!
+                </a>
+                {% endwith %}
+              </div>
+              <!-- END NEW INDIVIDUAL AMAZON BUTTON -->
+
+            </div>
+          </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🌍</span>
+            <span>Country</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <span class="font-semibold">{{ p.country|default:"–" }}</span>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>👤</span>
+            <span>Gender</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <span class="font-semibold">{{ p.gender|default:"–" }}</span>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>📅</span>
+            <span>Year</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <span class="font-semibold">{{ p.year|default:"–" }}</span>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>⭐</span>
+            <span>Rating</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="flex flex-col items-center gap-1">
+              <span class="rating-stars text-xl font-bold">{{ p.rating_value|default:"–" }}</span>
+              <span class="text-xs text-gray-400">({{ p.rating_count|default:"0" }} reviews)</span>
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🌸</span>
+            <span>Top Notes</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed">
+              {{ p.top_notes|default:"–" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🌺</span>
+            <span>Middle Notes</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed">
+              {{ p.middle_notes|default:"–" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🪵</span>
+            <span>Base Notes</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed">
+              {{ p.base_notes|default:"–" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>🎵</span>
+            <span>Main Accords</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="flex flex-wrap justify-center gap-1">
+              {% if p.mainaccord1 %}
+                <span class="accord-badge">{{ p.mainaccord1 }}</span>
+              {% endif %}
+              {% if p.mainaccord2 %}
+                <span class="accord-badge">{{ p.mainaccord2 }}</span>
+              {% endif %}
+              {% if p.mainaccord3 %}
+                <span class="accord-badge">{{ p.mainaccord3 }}</span>
+              {% endif %}
+              {% if not p.mainaccord1 and not p.mainaccord2 and not p.mainaccord3 %}
+                <span>–</span>
+              {% endif %}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>👨‍🔬</span>
+            <span>Perfumer(s)</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="text-sm">
+              {{ p.perfumer1|default:"–" }}{% if p.perfumer2 %}, {{ p.perfumer2 }}{% endif %}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+
+      <tr class="table-row">
+        <td class="feature-label p-4">
+          <div class="flex items-center gap-2">
+            <span>📝</span>
+            <span>Description</span>
+          </div>
+        </td>
+        {% for p in perfumes %}
+          <td class="p-4 text-center">
+            <div class="notes-cell text-sm leading-relaxed text-gray-400">
+              {{ p.description|truncatewords:40|default:"No description available" }}
+            </div>
+          </td>
+        {% endfor %}
+      </tr>
+    </tbody>
   </table>
-  {% else %}
-  <div class="empty-state text-center py-20">
-    <div class="mb-6">
-      <span class="text-8xl opacity-20">⚖️</span>
-    </div>
-    <h3 class="text-2xl font-bold text-gray-400 mb-3">Start Your Comparison</h3>
-    <p class="text-gray-500 text-lg max-w-md mx-auto">
-      Select up to 4 perfumes above to compare their features, notes, and ratings side by side
-    </p>
-  </div>
-  {% endif %}
+  
+
 </div>
 
-<!-- JS for popup control -->
-<script>
-  const openBtn = document.getElementById('openComparePopup');
-  const closeBtn = document.getElementById('closeComparePopup');
-  const overlay = document.getElementById('compareOverlay');
-  const wrapper = document.getElementById('compareTableWrapper');
-
-  function openPopup() {
-    wrapper.classList.add('mobile-popup');
-    overlay.classList.remove('hidden');
-    closeBtn.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closePopup() {
-    wrapper.classList.remove('mobile-popup');
-    overlay.classList.add('hidden');
-    closeBtn.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  openBtn?.addEventListener('click', openPopup);
-  closeBtn?.addEventListener('click', closePopup);
-  overlay?.addEventListener('click', closePopup);
-</script>
+{% else %}
+<div class="empty-state text-center py-20">
+  <div class="mb-6">
+    <span class="text-8xl opacity-20">⚖️</span>
+  </div>
+  <h3 class="text-2xl font-bold text-gray-400 mb-3">Start Your Comparison</h3>
+  <p class="text-gray-500 text-lg max-w-md mx-auto">
+    Select up to 4 perfumes above to compare their features, notes, and ratings side by side
+  </p>
+</div>
+{% endif %}
