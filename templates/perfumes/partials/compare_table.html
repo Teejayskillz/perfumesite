@@ -1,289 +1,126 @@
-<style>
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+{% extends 'base.html' %}
+{% load static %}
 
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(-20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-  }
-
-  /* Slide-up animation for mobile popup */
-  @keyframes popupSlideUp {
-    from {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* --- MOBILE RESPONSIVE FIXES START HERE --- */
-  .compare-table-container {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.03), rgba(0, 0, 0, 0.9));
-    border: 1px solid rgba(212, 175, 55, 0.2);
-    animation: fadeIn 0.6s ease-out;
-    position: relative;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .compare-table-container table {
-    min-width: fit-content;
-  }
-
-  .feature-label {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.08), rgba(0, 0, 0, 0.5));
-    color: #d4af37;
-    font-weight: 700;
-    position: sticky;
-    left: 0;
-    z-index: 20;
-    border-right: 1px solid rgba(212, 175, 55, 0.2);
-  }
-
-  .table-header .feature-label {
-    border-top-left-radius: 0.75rem;
-  }
-
-  tbody tr:last-child .feature-label {
-    border-bottom-left-radius: 0.75rem;
-  }
-
-  .perfume-column {
-    min-width: 250px !important;
-    animation: slideInRight 0.5s ease-out;
-    animation-fill-mode: both;
-  }
-
-  .perfume-column:nth-child(2) { animation-delay: 0.1s; }
-  .perfume-column:nth-child(3) { animation-delay: 0.2s; }
-  .perfume-column:nth-child(4) { animation-delay: 0.3s; }
-  .perfume-column:nth-child(5) { animation-delay: 0.4s; }
-
-  .perfume-image-compare {
-    transition: all 0.3s ease;
-    border: 2px solid rgba(212, 175, 55, 0.3);
-  }
-
-  .perfume-image-compare:hover {
-    transform: scale(1.1) rotate(3deg);
-    border-color: #d4af37;
-    box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
-  }
-
-  .remove-btn {
-    background: rgba(220, 38, 38, 0.9);
-    transition: all 0.2s ease;
-    opacity: 0;
-  }
-
-  .perfume-column:hover .remove-btn {
-    opacity: 1;
-  }
-
-  .remove-btn:hover {
-    background: rgba(220, 38, 38, 1);
-    transform: scale(1.2) rotate(90deg);
-    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
-  }
-
-  .table-header {
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(0, 0, 0, 0.5));
-    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
-  }
-
-  .table-row {
-    transition: all 0.2s ease;
-    border-bottom: 1px solid rgba(212, 175, 55, 0.1);
-  }
-
-  .table-row:hover {
-    background: rgba(212, 175, 55, 0.05);
-  }
-
-  .scroll-indicator {
-    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
-    animation: float 2s ease-in-out infinite;
-  }
-
-  .rating-stars {
-    color: #d4af37;
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-  }
-
-  .accord-badge {
-    background: rgba(212, 175, 55, 0.15);
-    border: 1px solid rgba(212, 175, 55, 0.3);
-    color: #d4af37;
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    margin: 0.125rem;
-    transition: all 0.2s ease;
-  }
-
-  .accord-badge:hover {
-    background: rgba(212, 175, 55, 0.25);
-    border-color: #d4af37;
-    transform: translateY(-1px);
-  }
-
-  .empty-state {
-    animation: fadeIn 0.6s ease-out;
-  }
-
-  .compare-table-container::-webkit-scrollbar {
-    height: 10px;
-  }
-
-  .compare-table-container::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-  }
-
-  .compare-table-container::-webkit-scrollbar-thumb {
-    background: linear-gradient(90deg, #d4af37, #f4e4b8);
-    border-radius: 5px;
-  }
-
-  .compare-table-container::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(90deg, #f4e4b8, #d4af37);
-  }
-
-  .notes-cell {
-    max-width: 250px;
-    line-height: 1.6;
-  }
-
-  .seo-link-btn {
-    background: #d4af37;
-    color: #000;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    font-size: 0.75rem;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .seo-link-btn:hover {
-    background: #f4e4b8;
-    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.5);
-    transform: translateY(-2px);
-  }
-
-  /* --- MOBILE POPUP DESIGN --- */
-  @media (max-width: 768px) {
-    .compare-table-container.mobile-popup {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #111;
-      border-top-left-radius: 1.25rem;
-      border-top-right-radius: 1.25rem;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: popupSlideUp 0.4s ease-out;
-      z-index: 9999;
-    }
-
-    .compare-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 9998;
-    }
-  }
-</style>
-
-<!-- Floating button for mobile -->
-<button id="openComparePopup"
-  class="md:hidden fixed bottom-6 right-6 bg-[var(--gold)] text-black font-semibold py-3 px-5 rounded-full shadow-2xl animate-bounce z-50">
-  📊 Compare
-</button>
-
-<!-- Popup overlay (hidden by default) -->
-<div id="compareOverlay" class="hidden compare-overlay md:hidden"></div>
-
-<!-- Mobile/desktop combined container -->
-<div id="compareTableWrapper" class="compare-table-container overflow-x-auto rounded-2xl p-6 shadow-2xl relative">
-  <!-- Close button for popup (mobile only) -->
-  <button id="closeComparePopup"
-    class="hidden md:hidden absolute top-3 right-3 bg-red-600 text-white text-lg font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg z-20">
-    ✕
+{% block content %}
+<div class="p-4 md:p-8">
+  <!-- Compare button (visible on mobile) -->
+  <button id="openComparePopup"
+    class="md:hidden w-full bg-purple-600 text-white py-3 rounded-lg font-semibold shadow-lg mb-4">
+    📊 Compare
   </button>
 
-  <!-- === Your Existing Table Content (Unchanged) === -->
-  {% if perfumes %}
-  <div class="scroll-indicator hidden md:flex absolute top-4 right-4 items-center gap-2 px-4 py-2 rounded-full text-xs text-[var(--gold)]">
-    <span>Scroll to view more</span>
-    <span class="text-lg">→</span>
+  <!-- Mobile popup container -->
+  <div id="comparePopup"
+    class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div
+      class="bg-gray-900 rounded-2xl shadow-2xl p-4 w-[95%] max-w-3xl max-h-[90vh] overflow-y-auto animate-fadeIn relative">
+      <button id="closeComparePopup"
+        class="absolute top-3 right-3 text-white text-2xl font-bold hover:text-red-400">✕</button>
+
+      <!-- ✅ Your working compare table goes here -->
+      {% if perfumes %}
+      <table class="w-full text-left text-gray-300 border-collapse">
+        <thead class="table-header">
+          <tr>
+            <th class="feature-label px-4 py-3">Feature</th>
+            {% for perfume in perfumes %}
+            <th class="perfume-column text-center px-4 py-3">
+              <div class="relative">
+                <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}"
+                  class="mx-auto w-24 h-24 rounded-lg object-cover perfume-image-compare">
+              </div>
+              <h3 class="font-bold mt-2">{{ perfume.name }}</h3>
+            </th>
+            {% endfor %}
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr class="table-row">
+            <td class="feature-label px-4 py-2">Brand</td>
+            {% for perfume in perfumes %}
+            <td class="px-4 py-2 text-center">{{ perfume.brand }}</td>
+            {% endfor %}
+          </tr>
+
+          <tr class="table-row">
+            <td class="feature-label px-4 py-2">Notes</td>
+            {% for perfume in perfumes %}
+            <td class="px-4 py-2 notes-cell">{{ perfume.notes }}</td>
+            {% endfor %}
+          </tr>
+
+          <tr class="table-row">
+            <td class="feature-label px-4 py-2">Rating</td>
+            {% for perfume in perfumes %}
+            <td class="px-4 py-2 text-center rating-stars">★ {{ perfume.rating }}</td>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-center text-gray-400">No perfumes selected for comparison.</p>
+      {% endif %}
+    </div>
   </div>
 
-  <div class="scroll-indicator flex flex-col justify-center items-center text-[var(--gold)] text-sm font-semibold mb-4 py-2 rounded-xl md:hidden">
-    <div class="flex items-center gap-2">
-        <span class="text-lg">←</span>
-        <span>**Swipe to see more**</span>
-        <span class="text-lg">→</span>
-    </div>
-    <span class="mt-1 text-xs font-normal text-gray-400">(For best experience, **tilt your phone** 🔄)</span>
-  </div>
+  <!-- Desktop view (visible on larger screens) -->
+  <div class="hidden md:block">
+    {% if perfumes %}
+    <table class="w-full text-left text-gray-300 border-collapse">
+      <thead class="table-header">
+        <tr>
+          <th class="feature-label px-4 py-3">Feature</th>
+          {% for perfume in perfumes %}
+          <th class="perfume-column text-center px-4 py-3">
+            <div class="relative">
+              <img src="{{ perfume.image.url }}" alt="{{ perfume.name }}"
+                class="mx-auto w-24 h-24 rounded-lg object-cover perfume-image-compare">
+            </div>
+            <h3 class="font-bold mt-2">{{ perfume.name }}</h3>
+          </th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="table-row">
+          <td class="feature-label px-4 py-2">Brand</td>
+          {% for perfume in perfumes %}
+          <td class="px-4 py-2 text-center">{{ perfume.brand }}</td>
+          {% endfor %}
+        </tr>
 
-  <!-- Your table starts -->
-  <table class="w-full text-left text-gray-300 border-collapse">
-    <!-- keep your entire <thead> and <tbody> here -->
-    {{ block.super }}
-  </table>
-  {% else %}
-  <div class="empty-state text-center py-20">
-    <div class="mb-6">
-      <span class="text-8xl opacity-20">⚖️</span>
-    </div>
-    <h3 class="text-2xl font-bold text-gray-400 mb-3">Start Your Comparison</h3>
-    <p class="text-gray-500 text-lg max-w-md mx-auto">
-      Select up to 4 perfumes above to compare their features, notes, and ratings side by side
-    </p>
+        <tr class="table-row">
+          <td class="feature-label px-4 py-2">Notes</td>
+          {% for perfume in perfumes %}
+          <td class="px-4 py-2 notes-cell">{{ perfume.notes }}</td>
+          {% endfor %}
+        </tr>
+
+        <tr class="table-row">
+          <td class="feature-label px-4 py-2">Rating</td>
+          {% for perfume in perfumes %}
+          <td class="px-4 py-2 text-center rating-stars">★ {{ perfume.rating }}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+    {% endif %}
   </div>
-  {% endif %}
 </div>
 
-<!-- JS for popup control -->
+<!-- Popup toggle script -->
 <script>
+document.addEventListener('DOMContentLoaded', function() {
   const openBtn = document.getElementById('openComparePopup');
   const closeBtn = document.getElementById('closeComparePopup');
-  const overlay = document.getElementById('compareOverlay');
-  const wrapper = document.getElementById('compareTableWrapper');
+  const popup = document.getElementById('comparePopup');
 
-  function openPopup() {
-    wrapper.classList.add('mobile-popup');
-    overlay.classList.remove('hidden');
-    closeBtn.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closePopup() {
-    wrapper.classList.remove('mobile-popup');
-    overlay.classList.add('hidden');
-    closeBtn.classList.add('hidden');
-    document.body.style.overflow = '';
-  }
-
-  openBtn?.addEventListener('click', openPopup);
-  closeBtn?.addEventListener('click', closePopup);
-  overlay?.addEventListener('click', closePopup);
+  if (openBtn) openBtn.addEventListener('click', () => popup.classList.remove('hidden'));
+  if (closeBtn) closeBtn.addEventListener('click', () => popup.classList.add('hidden'));
+  if (popup) popup.addEventListener('click', e => {
+    if (e.target === popup) popup.classList.add('hidden');
+  });
+});
 </script>
+{% endblock %}
