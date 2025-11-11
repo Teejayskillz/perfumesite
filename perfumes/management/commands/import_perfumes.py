@@ -42,6 +42,7 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile, delimiter=";")
             for row in reader:
                 row_count += 1
+                
 
                 # Skip lines before the specified start line
                 if row_count < start_line:
