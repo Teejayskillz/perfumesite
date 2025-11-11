@@ -194,8 +194,13 @@
       transform: translateY(-2px);
   }
 
-  /* --- MOBILE POPUP DESIGN --- */
+  /* --- MOBILE POPUP DESIGN & TABLE HIDING START --- */
   @media (max-width: 768px) {
+    /* KEY CHANGE: Hide the original table container on mobile */
+    #compare-table {
+      display: none !important;
+    }
+    
     .compare-table-container.mobile-popup {
       position: fixed;
       bottom: 0;
@@ -217,7 +222,14 @@
       backdrop-filter: blur(4px);
       z-index: 9998;
     }
+    
+    /* Ensure the mobile modal is always in front of content, but allows clicks on itself */
+    #compareMobileModal {
+        /* Removed pointer-events: none; */
+        z-index: 9999;
+    }
   }
+  /* --- MOBILE POPUP DESIGN & TABLE HIDING END --- */
 </style>
 
 <div style="display: none;">
@@ -226,6 +238,12 @@
   <link rel="canonical" href="[YOUR_SITE_ROOT_URL]/compare/">
 </div>
 
+<div class="flex justify-center my-4 md:hidden">
+    <button id="openComparePopup"
+      class="w-full max-w-sm bg-[var(--gold)] text-black font-semibold py-3 px-5 rounded-xl shadow-lg hover:bg-yellow-400 transition duration-200">
+      📊 Compare Selected Perfumes
+    </button>
+</div>
 
 {% if perfumes %}
 <div class="compare-table-container overflow-x-auto rounded-2xl p-6 shadow-2xl relative" id="compare-table">
@@ -286,7 +304,6 @@
                 <span class="text-sm text-[var(--gold)]">{{ perfume.brand }}</span>
               </div>
 
-              <!-- NEW INDIVIDUAL AMAZON BUTTON -->
               <div class="mt-4">
                 {% with perfume_query=perfume.name|urlencode %}
                 <a href="https://www.amazon.com/s?k={{ perfume_query }}&linkCode=ll2&tag=nzd01-20&linkId=09effabdfb2f0ca9a980db61e52ba254&language=en_US&ref_=as_li_ss_tl" 
@@ -296,9 +313,7 @@
                 </a>
                 {% endwith %}
               </div>
-              <!-- END NEW INDIVIDUAL AMAZON BUTTON -->
-
-            </div>
+              </div>
           </th>
         {% endfor %}
       </tr>
@@ -475,26 +490,12 @@
 
 </div>
 
-<!-- ============================
-     MOBILE POPUP CLONE PATCH
-     (clones the #compare-table into a mobile drawer)
-     ============================ -->
-
-<!-- Floating button for mobile (shows only on small screens) -->
-<button id="openComparePopup"
-  class="md:hidden fixed bottom-6 right-6 bg-[var(--gold)] text-black font-semibold py-3 px-5 rounded-full shadow-2xl animate-bounce z-50">
-  📊 Compare
-</button>
-
-<!-- Overlay for popup (hidden by default) -->
 <div id="compareOverlay" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"></div>
 
-<!-- Modal container where we'll inject a clone of #compare-table -->
-<div id="compareMobileModal" class="hidden fixed left-0 right-0 bottom-0 z-50 flex items-end justify-center pointer-events-none">
+<div id="compareMobileModal" class="hidden fixed left-0 right-0 bottom-0 z-50 flex items-end justify-center">
   <div id="compareMobileInner"
        class="pointer-events-auto w-full max-w-3xl rounded-t-2xl bg-[#0b0b0b] border-t border-[rgba(212,175,55,0.12)] shadow-2xl max-h-[88vh] overflow-auto p-4"
        style="animation: popupSlideUp 350ms ease-out;">
-    <!-- Close row -->
     <div class="flex justify-between items-center mb-3">
       <div></div>
       <button id="closeComparePopup" class="text-gray-200 bg-red-600 w-9 h-9 rounded-full flex items-center justify-center shadow">
@@ -502,7 +503,6 @@
       </button>
     </div>
 
-    <!-- CLONED TABLE WILL BE INSERTED HERE -->
     <div id="compareMobileContent"></div>
   </div>
 </div>
@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openPopup() {
     if (!originalTable) {
-      alert('Comparison table not found on the page.');
+      console.error('Comparison table (#compare-table) not found on the page. Cannot open popup.');
       return;
     }
 
@@ -542,7 +542,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Avoid duplicate IDs inside clone (rename or remove the id)
     clone.id = 'compare-table-clone';
 
-    // Optional: hide mobile-only hints inside the clone (tilt text)
+    // Hide mobile-only hints inside the clone (tilt text, swipe text)
+    // We use .md\3A hidden to target the utility class md:hidden
     const hints = clone.querySelectorAll('.scroll-indicator.md\\:hidden, .scroll-indicator.md\\:hidden *');
     hints.forEach(h => { h.style.display = 'none'; });
 
@@ -559,10 +560,16 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function closePopup() {
+    // Start fade out/slide down
     overlay.classList.add('hidden');
     modal.classList.add('hidden');
+    
     // Clear clone (free memory)
-    mobileContent.innerHTML = '';
+    // A small delay (optional) might be added here if you want to wait for the animation to complete
+    setTimeout(() => {
+        mobileContent.innerHTML = '';
+    }, 350); // Match the CSS animation duration
+
     // Restore scroll
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
