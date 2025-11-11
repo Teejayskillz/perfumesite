@@ -39,6 +39,7 @@
     animation: fadeIn 0.6s ease-out;
     position: relative; /* Essential for sticky element */
     -webkit-overflow-scrolling: touch; /* Improved scroll physics on iOS */
+    /* Padding removed from here and moved to inner-wrapper to ensure sticky column works flush on mobile */
   }
 
   /* Target the table within the container to ensure it maintains width */
@@ -246,22 +247,26 @@
 </div>
 
 {% if perfumes %}
-<div class="compare-table-container overflow-x-auto rounded-2xl p-6 shadow-2xl relative" id="compare-table">
+<div class="compare-table-container overflow-x-auto rounded-2xl shadow-2xl relative" id="compare-table">
   
-  <div class="scroll-indicator hidden md:flex absolute top-4 right-4 items-center gap-2 px-4 py-2 rounded-full text-xs text-[var(--gold)]">
-    <span>Scroll to view more</span>
-    <span class="text-lg">→</span>
-  </div>
+  <div class="p-6"> 
 
-  <div class="scroll-indicator flex flex-col justify-center items-center text-[var(--gold)] text-sm font-semibold mb-4 py-2 rounded-xl md:hidden">
-    <div class="flex items-center gap-2">
-        <span class="text-lg">←</span>
-        <span>**Swipe to see more**</span>
-        <span class="text-lg">→</span>
+    <div class="scroll-indicator hidden md:flex absolute top-4 right-4 items-center gap-2 px-4 py-2 rounded-full text-xs text-[var(--gold)]">
+      <span>Scroll to view more</span>
+      <span class="text-lg">→</span>
     </div>
-    <span class="mt-1 text-xs font-normal text-gray-400">
-        (For best experience, **tilt your phone** 🔄)
-    </span>
+
+    <div class="scroll-indicator flex flex-col justify-center items-center text-[var(--gold)] text-sm font-semibold mb-4 py-2 rounded-xl md:hidden">
+      <div class="flex items-center gap-2">
+          <span class="text-lg">←</span>
+          <span>**Swipe to see more**</span>
+          <span class="text-lg">→</span>
+      </div>
+      <span class="mt-1 text-xs font-normal text-gray-400">
+          (For best experience, **tilt your phone** 🔄)
+      </span>
+    </div>
+    
   </div>
   
   <table class="w-full text-left text-gray-300 border-collapse">
@@ -503,7 +508,7 @@
       </button>
     </div>
 
-    <div id="compareMobileContent"></div>
+    <div id="compareMobileContent"></div> 
   </div>
 </div>
 
@@ -528,28 +533,32 @@ document.addEventListener('DOMContentLoaded', function () {
   const mobileContent = document.getElementById('compareMobileContent');
 
   // The original compare container uses id="compare-table"
-  const originalTable = document.getElementById('compare-table');
+  const originalTableContainer = document.getElementById('compare-table'); // Renamed for clarity
 
   function openPopup() {
-    if (!originalTable) {
+    if (!originalTableContainer) {
       console.error('Comparison table (#compare-table) not found on the page. Cannot open popup.');
       return;
     }
 
-    // Clone the node so we copy the exact rendered markup (images, HTMX buttons, etc.)
-    const clone = originalTable.cloneNode(true);
+    // 1. Clone the entire original container
+    const clone = originalTableContainer.cloneNode(true);
 
-    // Avoid duplicate IDs inside clone (rename or remove the id)
+    // 2. Avoid duplicate IDs and give it a name for debugging
     clone.id = 'compare-table-clone';
-
-    // Hide mobile-only hints inside the clone (tilt text, swipe text)
+    
+    // 3. IMPORTANT: The cloned container is the horizontal scrolling element.
+    // We add the 'mobile-popup' class which enforces a fixed position but 
+    // we use the original 'overflow-x-auto' class for horizontal scroll.
+    
+    // 4. Hide mobile-only hints inside the clone (tilt text, swipe text)
     // We use .md\3A hidden to target the utility class md:hidden
     const hints = clone.querySelectorAll('.scroll-indicator.md\\:hidden, .scroll-indicator.md\\:hidden *');
     hints.forEach(h => { h.style.display = 'none'; });
-
-    // Inject clone
+    
+    // 5. Inject clone
     mobileContent.innerHTML = '';
-    mobileContent.appendChild(clone);
+    mobileContent.appendChild(clone); 
 
     // Show overlay + modal
     overlay.classList.remove('hidden');
@@ -565,10 +574,9 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.classList.add('hidden');
     
     // Clear clone (free memory)
-    // A small delay (optional) might be added here if you want to wait for the animation to complete
     setTimeout(() => {
         mobileContent.innerHTML = '';
-    }, 350); // Match the CSS animation duration
+    }, 350); 
 
     // Restore scroll
     document.documentElement.style.overflow = '';
@@ -586,7 +594,5 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!modal.classList.contains('hidden')) closePopup();
     }
   });
-
-  // If HTMX updates the original table, future opens will clone the updated content.
 });
 </script>
