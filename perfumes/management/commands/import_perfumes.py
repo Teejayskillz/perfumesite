@@ -1,5 +1,4 @@
 import csv
-import requests
 import cloudscraper
 import time
 import random
@@ -10,7 +9,7 @@ from perfumes.models import Perfume
 
 
 class Command(BaseCommand):
-    help = "Import perfumes from CSV into database with image & description from perfume page. Designed to stop and resume cleanly on 429 rate limit errors."
+    help = "Import perfumes from CSV into database with image & description from perfume page. Automatically waits 15 minutes if 429 rate limit persists."
 
     USER_AGENTS = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
@@ -42,7 +41,6 @@ class Command(BaseCommand):
             reader = csv.DictReader(csvfile, delimiter=";")
             for row in reader:
                 row_count += 1
-                
 
                 # Skip lines before the specified start line
                 if row_count < start_line:
@@ -60,12 +58,9 @@ class Command(BaseCommand):
 
                     if existing_perfumes.exists():
                         perfume = existing_perfumes.first()
-
-                        # Skip if this perfume already has both description and image
                         if perfume.description and perfume.image:
                             self.stdout.write(f"➡️ Skipping row {row_count}: {name} ({brand}) already complete.")
                             continue
-
                         created = False
                     else:
                         perfume = Perfume.objects.create(
@@ -120,28 +115,26 @@ class Command(BaseCommand):
         )
 
     def scrape_fragrantica(self, url, name, row_num, max_retries=10):
-        for attempt in range(max_retries):
+        attempt = 0
+        while True:
             try:
                 headers = self.base_headers.copy()
                 headers["User-Agent"] = random.choice(self.USER_AGENTS)
                 res = self.scraper.get(url, headers=headers, timeout=15, allow_redirects=True)
 
                 if res.status_code == 429:
-                    if attempt == max_retries - 1:
+                    if attempt >= max_retries - 1:
                         self.stderr.write(f"⛔ CRITICAL 429 at row {row_num}: Max retries hit for {name}.")
-                        self.stderr.write(
-                            self.style.ERROR(
-                                f"Script stopped due to persistent rate limiting. Last uncompleted row: {row_num}."
-                            )
-                        )
-                        exit(1)
-
-                    wait_time = (2 ** attempt) + random.uniform(1, 3)
-                    self.stdout.write(
-                        f"⏳ Attempt {attempt+1}/{max_retries}: 429 Rate Limit hit for {name}. Waiting {wait_time:.2f}s..."
-                    )
-                    time.sleep(wait_time)
-                    continue
+                        self.stderr.write(self.style.WARNING(f"⏳ Waiting 15 minutes before retrying {name}..."))
+                        time.sleep(15 * 60)  # Wait 15 minutes
+                        attempt = 0
+                        continue
+                    else:
+                        wait_time = (2 ** attempt) + random.uniform(1, 3)
+                        self.stdout.write(f"⏳ Attempt {attempt+1}/{max_retries}: 429 Rate Limit hit for {name}. Waiting {wait_time:.2f}s...")
+                        time.sleep(wait_time)
+                        attempt += 1
+                        continue
 
                 if res.status_code != 200:
                     self.stderr.write(f"🚫 Request failed for {url}. Status code: {res.status_code}")
@@ -176,9 +169,11 @@ class Command(BaseCommand):
             except Exception as e:
                 self.stderr.write(f"⚠️ Scrape error for {url}: {e}")
                 time.sleep(5)
-                continue
-
-        return None, None
+                attempt += 1
+                if attempt >= max_retries:
+                    self.stderr.write(f"⚠️ Max retries reached for {name}. Waiting 15 minutes before retrying...")
+                    time.sleep(15 * 60)
+                    attempt = 0
 
     def download_and_attach_image(self, perfume, image_url):
         try:
