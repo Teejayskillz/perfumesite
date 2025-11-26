@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
 
+{# Add SEO tags for specific filtered pages #}
+<title>Perfume Collection: {{ filter_string|default:"All"|cut:"&" }} Scents | Scentbasex.com</title>
+<meta name="description" content="Discover your signature scent from our curated selection of perfumes. Filtered list for best results.">
+{% load static %}
+<meta name="keywords" content="perfumes, fragrance, scent, {{ request.GET.gender }}, {{ request.GET.brand }}, {{ request.GET.accord }}">
+
+
 <style>
   @keyframes slideInDown {
     from {
@@ -247,27 +254,11 @@
   </div>
 
   {% if perfumes.paginator.num_pages > 1 %}
-  {# --- START OF FIX: Utility block to get current query parameters --- #}
-  {% comment %} 
-    This block creates the filter query string (e.g., "?gender=Men&brand=Dior") 
-    excluding the current 'page' number, so it can be safely appended to all 
-    pagination links.
-  {% endcomment %}
-  {% url 'perfume_list' as current_url %}
-  {% with request.GET.urlencode as current_query %}
-  {% with current_query|cut:"page=" as filtered_query_stage1 %}
-  
-  {# FIX: Convert the page number (int) to a string before cutting #}
-  {% with filtered_query_stage1|cut:perfumes.number|stringformat:"s" as filtered_query_stage2 %}
-  
-  {% with filtered_query_stage2|cut:"&" as filtered_query_stage3 %}
-  {# Final cleanup for links #}
-  {% with filtered_query_stage3|cut:"page=" as final_filtered_query %}
-  
+  {# The filter_string variable MUST be passed from the views.py context for this to work #}
   <div class="flex justify-center items-center gap-3 mt-12 flex-wrap">
     
     {% if perfumes.has_previous %}
-      <a href="?{{ final_filtered_query|cut:perfumes.previous_page_number|stringformat:"s" }}&page={{ perfumes.previous_page_number }}" 
+      <a href="?{{ filter_string }}page={{ perfumes.previous_page_number }}" 
          class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
         ← Previous
       </a>
@@ -282,11 +273,11 @@
         {% if num == perfumes.number %}
           <span class="pagination-btn active px-4 py-3 rounded-xl">{{ num }}</span>
         {% elif num > perfumes.number|add:'-3' and num < perfumes.number|add:'3' %}
-          <a href="?{{ final_filtered_query|cut:num|stringformat:"s" }}&page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
+          <a href="?{{ filter_string }}page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
             {{ num }}
           </a>
         {% elif num == 1 or num == perfumes.paginator.num_pages %}
-          <a href="?{{ final_filtered_query|cut:num|stringformat:"s" }}&page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
+          <a href="?{{ filter_string }}page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
             {{ num }}
           </a>
         {% endif %}
@@ -294,7 +285,7 @@
     </div>
 
     {% if perfumes.has_next %}
-      <a href="?{{ final_filtered_query|cut:perfumes.next_page_number|stringformat:"s" }}&page={{ perfumes.next_page_number }}" 
+      <a href="?{{ filter_string }}page={{ perfumes.next_page_number }}" 
          class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
         Next →
       </a>
@@ -304,13 +295,6 @@
       </span>
     {% endif %}
   </div>
-  
-  {% endwith %}
-  {% endwith %}
-  {% endwith %}
-  {% endwith %}
-  {% endwith %}
-  {# --- END OF FIX --- #}
   {% endif %}
 
   <div class="fixed bottom-8 right-8 z-50">
@@ -358,6 +342,7 @@
   function goToCompare() {
     if (selectedPerfumes.length > 0) {
       const params = selectedPerfumes.map(id => `perfumes=${id}`).join('&');
+      // Include site link for SEO
       window.location.href = `{% url 'compare_perfumes' %}?${params}`;
     }
   }
