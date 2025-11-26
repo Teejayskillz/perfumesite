@@ -58,8 +58,19 @@ def perfume_list(request):
     paginator = Paginator(perfumes, 12)  # show 12 perfumes per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
+    query_params = request.GET.copy()
+    if 'page' in query_params:
+        del query_params['page']
+    
+    # This creates a string like 'gender=male&brand=dior&'
+    filter_string = query_params.urlencode()
+    if filter_string:
+        filter_string += '&' # Add an ampersand to easily append the next page number
 
-    return render(request, 'perfumes/perfume_list.html', {'perfumes': page_obj})
+    return render(request, 'perfumes/perfume_list.html', {
+        'perfumes': page_obj,
+        'filter_string': filter_string, # --- PASS THIS TO TEMPLATE ---
+    })
 
 
 def perfume_detail(request, pk):

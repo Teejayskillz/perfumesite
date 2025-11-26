@@ -155,13 +155,11 @@
 
 <div class="container max-w-7xl mx-auto py-8 px-4">
   
-  <!-- Page Title -->
   <div class="text-center mb-8">
     <h1 class="page-title text-4xl md:text-5xl font-extrabold mb-3">Perfume Collection</h1>
     <p class="text-gray-400 text-lg">Discover your signature scent from our curated selection</p>
   </div>
 
-  <!-- Filter Section -->
   <form
     id="filter-form"
     action="{% url 'perfume_list' %}"
@@ -170,7 +168,6 @@
   >
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
       
-      <!-- Gender Filter -->
       <div>
         <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Gender</label>
         <select name="gender" class="filter-select w-full p-3 rounded-xl text-white">
@@ -181,7 +178,6 @@
         </select>
       </div>
 
-      <!-- Country Filter -->
       <div>
         <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Country</label>
         <select name="country" class="filter-select w-full p-3 rounded-xl text-white">
@@ -193,7 +189,6 @@
         </select>
       </div>
 
-      <!-- Brand Search -->
       <div>
         <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Brand</label>
         <input 
@@ -204,7 +199,6 @@
         />
       </div>
 
-      <!-- Accord Filter -->
       <div>
         <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Accord</label>
         <select name="accord" class="filter-select w-full p-3 rounded-xl text-white">
@@ -217,7 +211,6 @@
         </select>
       </div>
 
-      <!-- Rating Filter -->
       <div>
         <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wide">Rating</label>
         <select name="rating" class="filter-select w-full p-3 rounded-xl text-white">
@@ -228,7 +221,6 @@
         </select>
       </div>
 
-      <!-- Apply Button -->
       <div class="flex items-end">
         <button type="submit" class="apply-button w-full text-black font-bold px-6 py-3 rounded-xl transition">
           <span class="flex items-center justify-center gap-2">
@@ -240,7 +232,6 @@
     </div>
   </form>
 
-  <!-- Perfume Grid -->
   <div id="perfume-list" class="perfume-grid grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
     {% for perfume in perfumes %}
       {% include 'perfumes/_perfume_card.html' %}
@@ -255,54 +246,71 @@
     {% endfor %}
   </div>
 
-  <!-- Pagination Controls -->
   {% if perfumes.paginator.num_pages > 1 %}
-  <div class="flex justify-center items-center gap-3 mt-12 flex-wrap">
+  
+    {# --- START OF FIX: Utility block to get current query parameters --- #}
+    {% comment %} 
+      This block creates the filter query string (e.g., "?gender=Men&brand=Dior") 
+      excluding the current 'page' number, so it can be safely appended to all 
+      pagination links. Requires `request` to be available in the template context.
+    {% endcomment %}
+    {% url 'perfume_list' as current_url %}
+    {% with request.GET.urlencode as current_query %}
+    {% with current_query|cut:"page=" as filtered_query_stage1 %}
+    {% with filtered_query_stage1|cut:perfumes.number as filtered_query_stage2 %}
+    {% with filtered_query_stage2|cut:"&" as filtered_query_stage3 %}
+    {# Final cleanup for links #}
+    {% with filtered_query_stage3|cut:"page=" as final_filtered_query %}
     
-    <!-- Previous Button -->
-    {% if perfumes.has_previous %}
-      <a href="?page={{ perfumes.previous_page_number }}" 
-         class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
-        ← Previous
-      </a>
-    {% else %}
-      <span class="pagination-btn disabled px-6 py-3 text-gray-600 rounded-xl">
-        ← Previous
-      </span>
-    {% endif %}
+    <div class="flex justify-center items-center gap-3 mt-12 flex-wrap">
+      
+      {% if perfumes.has_previous %}
+        <a href="?{{ final_filtered_query }}&page={{ perfumes.previous_page_number }}" 
+           class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
+          ← Previous
+        </a>
+      {% else %}
+        <span class="pagination-btn disabled px-6 py-3 text-gray-600 rounded-xl">
+          ← Previous
+        </span>
+      {% endif %}
 
-    <!-- Page Numbers -->
-    <div class="flex gap-2">
-      {% for num in perfumes.paginator.page_range %}
-        {% if num == perfumes.number %}
-          <span class="pagination-btn active px-4 py-3 rounded-xl">{{ num }}</span>
-        {% elif num > perfumes.number|add:'-3' and num < perfumes.number|add:'3' %}
-          <a href="?page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
-            {{ num }}
-          </a>
-        {% elif num == 1 or num == perfumes.paginator.num_pages %}
-          <a href="?page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
-            {{ num }}
-          </a>
-        {% endif %}
-      {% endfor %}
+      <div class="flex gap-2">
+        {% for num in perfumes.paginator.page_range %}
+          {% if num == perfumes.number %}
+            <span class="pagination-btn active px-4 py-3 rounded-xl">{{ num }}</span>
+          {% elif num > perfumes.number|add:'-3' and num < perfumes.number|add:'3' %}
+            <a href="?{{ final_filtered_query }}&page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
+              {{ num }}
+            </a>
+          {% elif num == 1 or num == perfumes.paginator.num_pages %}
+            <a href="?{{ final_filtered_query }}&page={{ num }}" class="pagination-btn px-4 py-3 text-white rounded-xl hover:text-white transition">
+              {{ num }}
+            </a>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if perfumes.has_next %}
+        <a href="?{{ final_filtered_query }}&page={{ perfumes.next_page_number }}" 
+           class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
+          Next →
+        </a>
+      {% else %}
+        <span class="pagination-btn disabled px-6 py-3 text-gray-600 rounded-xl">
+          Next →
+        </span>
+      {% endif %}
     </div>
-
-    <!-- Next Button -->
-    {% if perfumes.has_next %}
-      <a href="?page={{ perfumes.next_page_number }}" 
-         class="pagination-btn px-6 py-3 text-white rounded-xl hover:text-white transition font-semibold">
-        Next →
-      </a>
-    {% else %}
-      <span class="pagination-btn disabled px-6 py-3 text-gray-600 rounded-xl">
-        Next →
-      </span>
-    {% endif %}
-  </div>
+    
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {% endwith %}
+    {# --- END OF FIX --- #}
   {% endif %}
 
-  <!-- Floating Compare Button -->
   <div class="fixed bottom-8 right-8 z-50">
     <button 
       type="button" 
